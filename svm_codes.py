@@ -184,28 +184,6 @@ e testa o modelo utilizando os tweets da base de teste, chama o metodo
 accuracy para detalhar melhor a divisão dos resultados encontrados.
 """
 def train_predict(train_base,test_base,parameter):
-	"""
-	f1 = open("training.txt","w")
-	i = 0
-	for x in train_base[1]:
-		f1.write(str(train_base[0][i])+ " ")
-		for y in x:
-			f1.write(str(y) + ":" + str(x[y]) + " ")
-		f1.write("\n")
-		i += 1
-	f1.close()
-	f1 = open("test.txt","w")
-	i = 0
-	for x in test_base[1]:
-		f1.write(str(test_base[0][i])+ " ")
-		for y in x:
-			f1.write(str(y) + ":" + str(x[y]) + " ")
-		f1.write("\n")
-		i += 1
-	f1.close()
-	raw_input()
-	"""
-	
 	prob  = svm_problem(train_base[0], train_base[1])
 	param = svm_parameter(parameter)
 	m = svm_train(prob, param)
@@ -215,18 +193,33 @@ def train_predict(train_base,test_base,parameter):
 		p_label, p_acc, p_val = svm_predict(test_base[0], test_base[1], m, '')
 		accuracy([1,-1],test_base[0],p_label,parameter)
 
+"""Metodo que escreve em arquivo os resultados obtidos de cada teste
+realizado, no formato utilizado pelo media_w
+"""
 def write_acc(acc,parameter):
 	list_results.append([acc[1],acc[-1]])
+	
 	if not os.path.exists("saidas_users"):
 		os.system("mkdir saidas_users")
 	if not os.path.exists("saidas_users\\user".replace("\\",separator) + str(user)):
 		os.system("mkdir saidas_users\\user".replace("\\",separator) + str(user))
-	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
 	
-	f.write(parameter[3:].split(" -v")[0] + " correto importante = " + str(int(acc[1] *acc["1total"]/100)) + "/" + str(int(acc["1total"]))+"("+str("%.2f"%((acc[1])))+"%) ")
-	f.write("| correto nao-importante = " + str(int(acc[-1] * acc["-1total"] / 100)) + "/" + str(int(acc["-1total"]))+"("+str("%.2f"%((acc[-1])))+"%) ")
-	f.write("| falso positivo = " + str(int(acc["-1total"] - (acc[-1] * acc["-1total"] / 100))) + "/" + str(int(acc["-1total"])) + "(" + str("%.2f"%(100-acc[-1]))+"%) ")
-	f.write("| falso negativo = " + str(int(acc["1total"] - (acc[1] * acc["1total"] / 100))) + "/" + str(int(acc["1total"])) + "(" + str("%.2f"%(100-acc[1]))+"%)\n")
+	acc_important_perc = acc[1]
+	total_important = int(acc["1total"])
+	acc_important_num = int(acc_important_perc/100. * total_important)
+	acc_not_important_perc = acc[-1]
+	total_not_important = int(acc["-1total"])
+	acc_not_important_num = int(acc_not_important_perc/100. * total_not_important)
+	false_positive_perc = 100. - acc_not_important_perc
+	false_positive_num = int(total_not_important - acc_not_important_num)
+	false_negative_perc = 100. - acc_important_perc
+	false_negative_num = int(total_important - acc_important_num)
+	
+	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
+	f.write(parameter[3:].split(" -v")[0] + " correto importante = " + str(acc_important_num) + "/" + str(total_important)+"("+str("%.2f"%acc_important_perc)+"%) ")
+	f.write("| correto nao-importante = " + str(acc_not_important_num) + "/" + str(total_not_important)+"("+str("%.2f"%acc_not_important_perc)+"%) ")
+	f.write("| falso positivo = " + str(false_positive_num) + "/" + str(total_not_important) + "(" + str("%.2f"%false_positive_perc)+"%) ")
+	f.write("| falso negativo = " + str(false_negative_num) + "/" + str(total_important) + "(" + str("%.2f"%false_negative_perc)+"%)\n")
 	f.close()
 
 """
@@ -236,46 +229,29 @@ modelo, utiliza esses valores para indicar qual foi a precisão do modelo
 ao predizer cada classe, e os escreve em um arquivo chamado percentage.out
 na pasta do respectivo usuário.
 """
+
 def accuracy(classes,base_test,predicted,parameter):
-	user = int(((filename.split("\\".replace("\\",separator))[1]).split(".")[0])[4:])
 	acc = {}
 	global list_results
-	false_positive = 0.
-	false_negative = 0.
-	total = {}
+
 	for c in classes:
 		acc[c] = 0.
-		total[c] = 0.
+		acc[str(c)+"total"] = 0
+
 	for i in range(len(base_test)):
 		if base_test[i] == predicted[i]:
 			acc[base_test[i]] += 1.
-		else:
-			if predicted[i] == 1:
-				false_positive += 1.
-			else:
-				false_negative += 1.
-		total[base_test[i]] += 1.
+		acc[str(base_test[i])+"total"] += 1
+
 	for c in classes:
-		if total[c] != 0:
-			acc[c] /= total[c]
+		if acc[str(c)+"total"] != 0:
+			acc[c] *= (100. / acc[str(c)+"total"])
 		else:
-			acc[c] = 1.
-		print "class[" + str(c) + "] : "+ str("%.2f"%(acc[c] * total[c])) + "(" + str("%.2f"%(acc[c] * 100)) + "%)"
-	if total[1] != 0:
-		false_negative /= total[1]
-	if total[-1] != 0:
-		false_positive /= total[-1]
+			acc[c] = 100.
+		print "class[" + str(c) + "] : "+ str("%.2f"%(acc[c] * acc[str(c)+"total"])) + "(" + str("%.2f"%acc[c]) + "%)"
 	list_results.append([acc[1],acc[-1]])
-	if not os.path.exists("saidas_users"):
-		os.system("mkdir saidas_users")
-	if not os.path.exists("saidas_users\\user".replace("\\",separator) + str(user)):
-		os.system("mkdir saidas_users\\user" + str(user))
-	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
-	f.write(parameter[3:] + " correto importante = "+str(int(acc[1]*total[1]))+"/"+str(int(total[1]))+"("+str("%.2f"%((acc[1])*100))+"%) ")
-	f.write("| correto nao-importante = "+str(int(acc[-1]*total[-1]))+"/"+str(int(total[-1]))+"("+str("%.2f"%((acc[-1])*100))+"%) ")
-	f.write("| falso positivo = " + str(int(false_positive*total[-1])) + "/" + str(int(total[-1])) + "("+str("%.2f"%(false_positive*100))+"%) ")
-	f.write("| falso negativo = " + str(int(false_negative*total[1])) + "/" + str(int(total[1])) + "("+str("%.2f"%((false_negative)*100))+"%)\n")
-	f.close()
+	
+	write_acc(acc,parameter)
 
 """
 Metodo que 'transforma' os valores de um tweet, em números utilizando o
