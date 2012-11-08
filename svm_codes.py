@@ -222,10 +222,11 @@ def write_acc(acc,parameter):
 	if not os.path.exists("saidas_users\\user".replace("\\",separator) + str(user)):
 		os.system("mkdir saidas_users\\user".replace("\\",separator) + str(user))
 	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
+	
 	f.write(parameter[3:].split(" -v")[0] + " correto importante = " + str(int(acc[1] *acc["1total"]/100)) + "/" + str(int(acc["1total"]))+"("+str("%.2f"%((acc[1])))+"%) ")
 	f.write("| correto nao-importante = " + str(int(acc[-1] * acc["-1total"] / 100)) + "/" + str(int(acc["-1total"]))+"("+str("%.2f"%((acc[-1])))+"%) ")
-	f.write("| falso positivo = " + str(int(acc["-1total"] - (acc[-1] * acc["-1total"] / 100))) + "/" + str(int(acc["-1total"])) + "(" + str("%.2f"%(int(acc["-1total"]-(acc[-1]*acc["-1total"]))))+"%) ")
-	f.write("| falso negativo = " + str(int(acc["1total"] - (acc[1] * acc["1total"] / 100))) + "/" + str(int(acc["1total"])) + "(" + str("%.2f"%(int(acc["1total"]-(acc[1]*acc["1total"]))))+"%)\n")
+	f.write("| falso positivo = " + str(int(acc["-1total"] - (acc[-1] * acc["-1total"] / 100))) + "/" + str(int(acc["-1total"])) + "(" + str("%.2f"%(100-acc[-1]))+"%) ")
+	f.write("| falso negativo = " + str(int(acc["1total"] - (acc[1] * acc["1total"] / 100))) + "/" + str(int(acc["1total"])) + "(" + str("%.2f"%(100-acc[1]))+"%)\n")
 	f.close()
 
 """
