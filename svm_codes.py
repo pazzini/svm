@@ -433,7 +433,7 @@ PARAMETERS
 -f: features to be done
 -p: proportion of data division. Example: -p 50, half of data will
 be used on learning and half on tests
--v: cross validation. Create v parts of data of same size and user v-1
+-v: cross validation. Create v parts of data of same size and use v-1
 on train and test on last one, all parts are tested one time. -v max use
 the size of data, training with data -1 and testing on the last one.
 -t: number of times the process will be done
@@ -441,6 +441,9 @@ the size of data, training with data -1 and testing on the last one.
 -w1: the initial value of w1
 -w-1: the initial value of w-1
 -d: delete all files of input user
+-fm: run the fast mode of cross-validation
+-ft: load the first db as training base and the second db as test base,
+if that methos is being used the cross-validation methos can't be used.
 """
 
 #Main
