@@ -7,5 +7,3 @@ user6 = important: 52.0(3.11%) | not important: 1622.0(96.89%)
 user7 = important: 78.0(28.16%) | not important: 199.0(71.84%)
 user8 = important: 234.0(28.78%) | not important: 579.0(71.22%)
 user9 = important: 106.0(37.99%) | not important: 173.0(62.01%)
-
-a
