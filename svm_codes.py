@@ -217,8 +217,10 @@ def train_predict(train_base,test_base,parameter):
 
 def write_acc(acc,parameter):
 	list_results.append([acc[1],acc[-1]])
+	if not os.path.exists("saidas_users"):
+		os.system("mkdir saidas_users")
 	if not os.path.exists("saidas_users\\user".replace("\\",separator) + str(user)):
-		os.system("mkdir saidas_users\\user" + str(user))
+		os.system("mkdir saidas_users\\user".replace("\\",separator) + str(user))
 	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
 	f.write(parameter[3:].split(" -v")[0] + " correto importante = " + str(int(acc[1] *acc["1total"]/100)) + "/" + str(int(acc["1total"]))+"("+str("%.2f"%((acc[1])))+"%) ")
 	f.write("| correto nao-importante = " + str(int(acc[-1] * acc["-1total"] / 100)) + "/" + str(int(acc["-1total"]))+"("+str("%.2f"%((acc[-1])))+"%) ")
@@ -263,6 +265,8 @@ def accuracy(classes,base_test,predicted,parameter):
 	if total[-1] != 0:
 		false_positive /= total[-1]
 	list_results.append([acc[1],acc[-1]])
+	if not os.path.exists("saidas_users"):
+		os.system("mkdir saidas_users")
 	if not os.path.exists("saidas_users\\user".replace("\\",separator) + str(user)):
 		os.system("mkdir saidas_users\\user" + str(user))
 	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
