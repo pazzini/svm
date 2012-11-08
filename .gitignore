@@ -3,4 +3,4 @@ open_all_medias.py
 delete.py
 count.py
 run_media.py
-.pyc
+*.pyc
