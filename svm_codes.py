@@ -206,10 +206,10 @@ def write_acc(acc,parameter):
 	
 	acc_important_perc = acc[1]
 	total_important = int(acc["1total"])
-	acc_important_num = int(acc_important_perc/100. * total_important)
+	acc_important_num = int(acc_important_perc / 100. * total_important)
 	acc_not_important_perc = acc[-1]
 	total_not_important = int(acc["-1total"])
-	acc_not_important_num = int(acc_not_important_perc/100. * total_not_important)
+	acc_not_important_num = int(acc_not_important_perc / 100. * total_not_important)
 	false_positive_perc = 100. - acc_not_important_perc
 	false_positive_num = int(total_not_important - acc_not_important_num)
 	false_negative_perc = 100. - acc_important_perc
@@ -236,7 +236,7 @@ def accuracy(classes,base_test,predicted,parameter):
 
 	for c in classes:
 		acc[c] = 0.
-		acc[str(c)+"total"] = 0
+		acc[str(c) + "total"] = 0
 
 	for i in range(len(base_test)):
 		if base_test[i] == predicted[i]:

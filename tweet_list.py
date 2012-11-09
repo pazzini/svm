@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from xml.dom.minidom import parse
 import random
 import sys
@@ -169,35 +172,34 @@ class tweet_list:
 		temp_train = []
 		temp_test = []
 		for tweet in self.documents:
-			for target in self.targets_total.keys():
-				if random.randint(0,100) <= (100-train_percent):
-					if tweet.get("manual_classification") == target:
-						if self.count_target_test[target] / self.targets_total[target] <= ((100.-train_percent)/100.):
-							temp_test.append(tweet)
-							self.count_target_test[target] += 1
-						else:
-							temp_train.append(tweet)
-							if tweet.get("manual_classification") == "important":
-								self.important_list.append(tweet)
-							elif tweet.get("manual_classification") == "neutral":
-								self.neutral_list.append(tweet)
-							else:
-								self.not_important_list.append(tweet)
-							self.count_target_learn[target] += 1
+			if random.randint(0,100) <= (100 - train_percent):
+				target = tweet.get("manual_classification")
+				if self.count_target_test[target] / self.targets_total[target] <= ((100. - train_percent) / 100.):
+					temp_test.append(tweet)
+					self.count_target_test[target] += 1
 				else:
-					if tweet.get("manual_classification") == target:
-						if self.count_target_learn[target] / self.targets_total[target] <= (train_percent/100.):
-							temp_train.append(tweet)
-							if tweet.get("manual_classification") == "important":
-								self.important_list.append(tweet)
-							elif tweet.get("manual_classification") == "neutral":
-								self.neutral_list.append(tweet)
-							else:
-								self.not_important_list.append(tweet)
-							self.count_target_learn[target] += 1
-						else:
-							temp_test.append(tweet)
-							self.count_target_test[target] += 1
+					temp_train.append(tweet)
+					if tweet.get("manual_classification") == "important":
+						self.important_list.append(tweet)
+					elif tweet.get("manual_classification") == "neutral":
+						self.neutral_list.append(tweet)
+					else:
+						self.not_important_list.append(tweet)
+					self.count_target_learn[target] += 1
+			else:
+				target = tweet.get("manual_classification")
+				if self.count_target_learn[target] / self.targets_total[target] <= (train_percent / 100.):
+					temp_train.append(tweet)
+					if tweet.get("manual_classification") == "important":
+						self.important_list.append(tweet)
+					elif tweet.get("manual_classification") == "neutral":
+						self.neutral_list.append(tweet)
+					else:
+						self.not_important_list.append(tweet)
+					self.count_target_learn[target] += 1
+				else:
+					temp_test.append(tweet)
+					self.count_target_test[target] += 1
 		self.training_base = list(temp_train)
 		self.test_base = list(temp_test)
 			
