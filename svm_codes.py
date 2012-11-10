@@ -90,6 +90,7 @@ repetition_no_changing = 1
 find = False
 list_results = []
 fast_mode = False
+fm_training_base = None
 file_test = ""
 
 """
@@ -130,30 +131,32 @@ Metodo utilizado para fazer o cross-validation
 o parametro -q é para que o libsvm realize menos impressões
 """
 def train_predict_fold(tam = 10,parameter = "-q "):
-	tam2 = tam
+	global fm_training_base
 	pos = 0
 	previous_times = []
 	for k in range(5):
 		previous_times.append(20.0)
 	
-	for i in range(tam2):
+	for i in range(tam):
 		
 		t1 = time.time()
 		
 		if fast_mode:
-			list_tweet.set_training_base(list_tweet.get_documents_list())
 			
-			create_dictionary()
-			
-			l_training,v_training = create_base_list(list_tweet.get_documents_list())
-			training_base = [l_training,v_training]
-			train_predict(training_base,[],parameter + " -v " + str(tam))	
+			if find and (fm_training_base == None):
+				list_tweet.set_training_base(list_tweet.get_documents_list())
+				create_dictionary()
+				l_training,v_training = create_base_list(list_tweet.get_documents_list())
+				fm_training_base = [l_training,v_training]
+
+			train_predict(fm_training_base,[],parameter + " -v " + str(tam))
+			print "Duration: %.3f s"%(time.time() - t1)
 			break
 		else:
 			temp_training_base = []
 			temp_test_base = []
 			temp_training_base = list_tweet.get_documents_list()
-			set_tam = int(list_tweet.get_documents_list_tam() // tam2)
+			set_tam = int(list_tweet.get_documents_list_tam() // tam)
 			for k in range(set_tam):
 				temp_test_base.append(temp_training_base[(i*set_tam)])
 				del temp_training_base[(i*set_tam)]
@@ -172,13 +175,13 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 		t2 = time.time() - t1
 		previous_times[pos] = t2
 		pos += 1
-		if pos == 5:
-			pos = 0
+		if pos == 5: pos = 0
 		et = (tam - i) * (sum(previous_times) / 5.)
 		horas = int(et // 3600)
 		minutos = int((et % 3600) // 60)
 		segundos = int((et % 3600) % 60)
-		print i, "/", tam, "ET:", str(horas) + ":" + str(minutos) + ":" + str(segundos)
+		print "Duration: %.3f s"%(time.time() - t1)
+		print i+1, "/", tam, "ET:", str(horas) + ":" + str(minutos) + ":" + str(segundos)
 """
 Metodo que cria o modelo treinado com os tweets da base de treinamento
 e testa o modelo utilizando os tweets da base de teste, chama o metodo
@@ -344,38 +347,34 @@ def delete():
 Metodo que roda ate encontrar um parametro weight aceitavel
 """
 def find_good_parameter(user):
-	first_result = []
-	mean = []
+	global list_results,repetition,repetition_no_changing,fast_mode
+	
+	mean = first_result = []
 	while (user + 1) > len(first_result):
 		first_result.append([0.,0.])
 	ws[user][0] = 100.0
 	ws[user][1] = 0.
 	original_change = 0.01
 	change = original_change
-	global list_results
 	times = 1
 	while True:
-		list_results = []
+		#list_results = []
 		for i in range(times):
 			ws[user][0] -= change
 			ws[user][1] += change
-			list_tweet.load_tweets(filename)
-			create_dictionary()
+			#list_tweet.load_tweets(filename)
 			mean.append([0.,0.])
-			if fold == "max":
-				train_predict_fold(list_tweet.get_documents_list_tam(),("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
-				#for j in range(int((list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam()))):
-				mean[-1][0] += list_results[-1][0]
-				mean[-1][1] += list_results[-1][1]
-				#mean[-1][0] /= (list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam())
-				#mean[-1][1] /= (list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam())
-			elif fold != 0:
+			if fold != 0:
 				train_predict_fold(fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
-				for j in range(int(fold)):
-					mean[-1][0] += list_results[-1*(1+j)][0]
-					mean[-1][1] += list_results[-1*(1+j)][1]
-				mean[-1][0] /= (fold)
-				mean[-1][1] /= (fold)
+				if not fast_mode:
+					for j in range(int(fold)):
+						mean[-1][0] += list_results[-1*(1+j)][0]
+						mean[-1][1] += list_results[-1*(1+j)][1]
+					mean[-1][0] /= (fold)
+					mean[-1][1] /= (fold)
+				else:
+					mean[-1][0] += list_results[-1][0]
+					mean[-1][1] += list_results[-1][1]
 			elif fold == 0:
 				list_tweet.classification_division(proportion)
 				train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1]))
@@ -384,32 +383,27 @@ def find_good_parameter(user):
 			if first_result[user] == [0.,0.]:
 				first_result[user] = list_results[0]
 		times = 1
+		
 		if abs(mean[-1][0] - mean[-1][1]) < 10.:
 			break
-		if (list_results[-1][0] >= (first_result[user][0] * 0.95) and (list_results[-1][0] > list_results[-1][1])) or ((list_results[-1][0] - list_results[-1][1]) > list_results[-1][0] * .25 ):
+		
+		if (list_results[-1][0] > list_results[-1][1]) or (abs(list_results[-1][0] - list_results[-1][1]) > 10):
 			change *= 1.3
 		else:
-			if change > original_change:
+			if abs(change) > abs(original_change):
 				change = (1 - (list_results[-1][1] / list_results[-1][0])) * change
 			else:
 				change = original_change
-		#if ((mean[-1][0] >= 0.98 and mean[-1][0] <= 1.) and mean[-1][1] > .96) or (mean[-1][0] < 0.8):
-		#	break
-		#elif mean[-1][0] <= 0.98 and (mean[-1][0] - mean[-1][1] <= 0.1):
-		#	break
+
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
 			change = -0.01
-		if change < 0 and (mean[-1][1] < mean[-1][0]):
-			change = -0.01
-		#print mean,abs(mean[-1][0] - mean[-1][1])
-
-				
 		
-		print "rate:",change
-	#print ws[user][0],ws[user][1]
-	#print list_results[-1][0],list_results[-1][1]
+		if change < 0 and (mean[-1][1] < mean[-1][0]) and (abs(mean[-1][0] - mean[-1][1]) > 10.):
+			change = 0.01
+			
+		print "rate:",change,"weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
+		print "___________________"
 	delete()
-	global repetition,repetition_no_changing,fast_mode
 	repetition = 1
 	repetition_no_changing = 1
 	fast_mode = False
@@ -513,22 +507,26 @@ for p in sys.argv:
 list_tweet = tweet_list.tweet_list()
 print "user" + str(user)
 
+list_tweet.load_tweets(filename)
+if fold == "max":
+	fold = list_tweet.get_documents_list_tam()
+
 if find:
 	find_good_parameter(user-1)
 for i in range(repetition):
 	for j in range(repetition_no_changing):
-		list_tweet.load_tweets(filename)
+		
 		if file_test != "":
 			list_tweet.load_tweets_test(file_test)
-		if fold == "max":
-			train_predict_fold(list_tweet.get_documents_list_tam(),("-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1])))
-		elif fold != 0:
+			
+		if fold != 0:
 			train_predict_fold(fold,("-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1])))
 		elif fold == 0:
 			if file_test == "":
 				list_tweet.classification_division(proportion)
 			create_dictionary()
 			train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1]))
+		
 	ws[user-1][0] -= change
 	ws[user-1][1] += change
 	if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
