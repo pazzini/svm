@@ -353,7 +353,7 @@ def find_good_parameter(user):
 	original_change = 0.01
 	change = original_change
 	global list_results
-	times = 3
+	times = 1
 	while True:
 		list_results = []
 		for i in range(times):
@@ -363,12 +363,12 @@ def find_good_parameter(user):
 			create_dictionary()
 			mean.append([0.,0.])
 			if fold == "max":
-				train_predict_fold((list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam()),("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user-1][1])))
-				for j in range(int((list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam()))):
-					mean[-1][0] += list_results[-1*(1+j)][0]
-					mean[-1][1] += list_results[-1*(1+j)][1]
-				mean[-1][0] /= (list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam())
-				mean[-1][1] /= (list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam())
+				train_predict_fold(list_tweet.get_documents_list_tam(),("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
+				#for j in range(int((list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam()))):
+				mean[-1][0] += list_results[-1][0]
+				mean[-1][1] += list_results[-1][1]
+				#mean[-1][0] /= (list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam())
+				#mean[-1][1] /= (list_tweet.get_documents_list_tam()+list_tweet.get_test_list_tam())
 			elif fold != 0:
 				train_predict_fold(fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
 				for j in range(int(fold)):
@@ -384,6 +384,8 @@ def find_good_parameter(user):
 			if first_result[user] == [0.,0.]:
 				first_result[user] = list_results[0]
 		times = 1
+		if abs(mean[-1][0] - mean[-1][1]) < 10.:
+			break
 		if (list_results[-1][0] >= (first_result[user][0] * 0.95) and (list_results[-1][0] > list_results[-1][1])) or ((list_results[-1][0] - list_results[-1][1]) > list_results[-1][0] * .25 ):
 			change *= 1.3
 		else:
@@ -391,19 +393,26 @@ def find_good_parameter(user):
 				change = (1 - (list_results[-1][1] / list_results[-1][0])) * change
 			else:
 				change = original_change
-		if ((mean[-1][0] >= 0.98 and mean[-1][0] <= 1.) and mean[-1][1] > .96) or (mean[-1][0] < 0.8):
-			break
-		elif mean[-1][0] <= 0.98 and (mean[-1][0] - mean[-1][1] <= 0.1):
-			break
+		#if ((mean[-1][0] >= 0.98 and mean[-1][0] <= 1.) and mean[-1][1] > .96) or (mean[-1][0] < 0.8):
+		#	break
+		#elif mean[-1][0] <= 0.98 and (mean[-1][0] - mean[-1][1] <= 0.1):
+		#	break
+		if change > 0 and (mean[-1][1] > mean[-1][0]):
+			change = -0.01
+		if change < 0 and (mean[-1][1] < mean[-1][0]):
+			change = -0.01
+		#print mean,abs(mean[-1][0] - mean[-1][1])
+
 				
 		
 		print "rate:",change
-	print ws[user][0],ws[user][1]
-	print list_results[-1][0],list_results[-1][1]
-	global repetition,repetition_no_changing
+	#print ws[user][0],ws[user][1]
+	#print list_results[-1][0],list_results[-1][1]
+	delete()
+	global repetition,repetition_no_changing,fast_mode
 	repetition = 1
-	repetition_no_changing = 30
-	
+	repetition_no_changing = 1
+	fast_mode = False
 
 """
 PARAMETERS
