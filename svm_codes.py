@@ -143,13 +143,17 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 		
 		if fast_mode:
 			
-			if find and (fm_training_base == None):
+			if (fm_training_base == None):
 				list_tweet.set_training_base(list_tweet.get_documents_list())
 				create_dictionary()
 				l_training,v_training = create_base_list(list_tweet.get_documents_list())
 				fm_training_base = [l_training,v_training]
-
+				
 			train_predict(fm_training_base,[],parameter + " -v " + str(tam))
+			
+			if not find:
+				fm_training_base = None
+			
 			print "Duration: %.3f s"%(time.time() - t1)
 			break
 		else:
@@ -182,6 +186,7 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 		segundos = int((et % 3600) % 60)
 		print "Duration: %.3f s"%(time.time() - t1)
 		print i+1, "/", tam, "ET:", str(horas) + ":" + str(minutos) + ":" + str(segundos)
+
 """
 Metodo que cria o modelo treinado com os tweets da base de treinamento
 e testa o modelo utilizando os tweets da base de teste, chama o metodo
@@ -233,7 +238,6 @@ modelo, utiliza esses valores para indicar qual foi a precisão do modelo
 ao predizer cada classe, e os escreve em um arquivo chamado percentage.out
 na pasta do respectivo usuário.
 """
-
 def accuracy(classes,base_test,predicted,parameter):
 	acc = {}
 	global list_results
@@ -358,11 +362,9 @@ def find_good_parameter(user):
 	change = original_change
 	times = 1
 	while True:
-		#list_results = []
 		for i in range(times):
 			ws[user][0] -= change
 			ws[user][1] += change
-			#list_tweet.load_tweets(filename)
 			mean.append([0.,0.])
 			if fold != 0:
 				train_predict_fold(fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
@@ -401,8 +403,8 @@ def find_good_parameter(user):
 		if change < 0 and (mean[-1][1] < mean[-1][0]) and (abs(mean[-1][0] - mean[-1][1]) > 10.):
 			change = 0.01
 			
-		print "rate:",change,"weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
-		print "___________________"
+		print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
+		print "-----------------------------------"
 	delete()
 	repetition = 1
 	repetition_no_changing = 1
@@ -513,6 +515,7 @@ if fold == "max":
 
 if find:
 	find_good_parameter(user-1)
+	find = False
 for i in range(repetition):
 	for j in range(repetition_no_changing):
 		
