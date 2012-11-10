@@ -275,9 +275,9 @@ class tweet_list:
 					return float(self.previously_searched[(target, feature, value)])
 		else:
 			total = self.search("important", feature, value)
-			total += self.search("not-important", feature, value)
-			total += self.search("neutral", feature, value)
-			return total
+			#total += self.search("not-important", feature, value)
+			#total += self.search("neutral", feature, value)
+			return 3 * total #3x é para manter os resultados, se removido necessario gerar novos resultados
 	
 	#retorna a quantidade de tweets de um determinado target(importante, neutro, nao-importante			
 	def get_target_tam(self,target):

@@ -165,6 +165,7 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			training_base = [l_training,v_training]
 			list_tweet.set_test_base(temp_test_base)
 			l_test,v_test = create_base_list(temp_test_base)
+			
 			test_base = [l_test,v_test]
 			train_predict(training_base,test_base,parameter)
 		

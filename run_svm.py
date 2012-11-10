@@ -25,7 +25,7 @@ for i in users:
 				s += (str(c[n]) + ",")
 			else:
 				s += (str(c[n]))
-		s = ("python svm_codes.py users\\user" + str(i) + ".xml -f " + s + " -d -w1 98.2 -w-1 1.8 -r 0.1 -t 1 -v max").replace("\\",separator)
+		s = ("python svm_codes.py users\\user" + str(i) + ".xml -f " + s + " -d -w1 98.0 -w-1 2.0 -r 0.1 -t 1 -v max -fm").replace("\\",separator)
 		time_ini = time.time()
 		os.system(s,)
 		count += 1
