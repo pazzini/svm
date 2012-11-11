@@ -383,7 +383,7 @@ def find_good_parameter(user):
 
 		if abs(mean[-1][0] - mean[-1][1]) < 10.:
 			break
-		elif abs(mean[-1][0] - mean[-1][1]) > 15.
+		elif abs(mean[-1][0] - mean[-1][1]) > 15.:
 			change *= 1.3
 		elif not fifteen:
 			change *= 0.2
@@ -503,28 +503,31 @@ list_tweet.load_tweets(filename)
 if fold == "max":
 	fold = list_tweet.get_documents_list_tam()
 
-print "user" + str(user)
-if find:
-	find_good_parameter(user-1)
-	find = False
-for i in range(repetition):
-	for j in range(repetition_no_changing):
-		
-		if file_test != "":
-			list_tweet.load_tweets_test(file_test)
+if list_tweet.get_important_tam() < 10:
+	print "quantidade de tweets importantes muita baixa:",list_tweet.get_important_tam()
+else:
+	print "user" + str(user)
+	if find:
+		find_good_parameter(user-1)
+		find = False
+	for i in range(repetition):
+		for j in range(repetition_no_changing):
 			
-		if fold != 0:
-			train_predict_fold(fold,("-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1])))
-		elif fold == 0:
-			if file_test == "":
-				list_tweet.classification_division(proportion)
-			create_dictionary()
-			train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1]))
-		
-	ws[user-1][0] -= change
-	ws[user-1][1] += change
-	if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
-		os.system((del_command + " saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator))
-	os.system(("python media_w.py saidas_users\\user" + str(user) + "\\percentage.out " + "saidas_users\\user" + str(user) + "\\media_user"+str(user)).replace("\\",separator))
-	os.system(("python media_w.py saidas_users\\user" + str(user) + "\\percentage.out " + "saidas_users\\media_users").replace("\\",separator))
+			if file_test != "":
+				list_tweet.load_tweets_test(file_test)
+				
+			if fold != 0:
+				train_predict_fold(fold,("-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1])))
+			elif fold == 0:
+				if file_test == "":
+					list_tweet.classification_division(proportion)
+				create_dictionary()
+				train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1]))
+			
+		ws[user-1][0] -= change
+		ws[user-1][1] += change
+		if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
+			os.system((del_command + " saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator))
+		os.system(("python media_w.py saidas_users\\user" + str(user) + "\\percentage.out " + "saidas_users\\user" + str(user) + "\\media_user"+str(user)).replace("\\",separator))
+		os.system(("python media_w.py saidas_users\\user" + str(user) + "\\percentage.out " + "saidas_users\\media_users").replace("\\",separator))
 

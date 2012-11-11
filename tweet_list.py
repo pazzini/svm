@@ -308,11 +308,13 @@ class tweet_list:
 	
 	#retorna tamanho da lista de tweets nao_importantes
 	def get_not_important_tam(self):
-		return len(self.not_important_list)
+		#return len(self.not_important_list)
+		return int(self.targets_total["not-important"])
 	
 	#retorna tamanho da lista de tweets importantes	
 	def get_important_tam(self):
-		return len(self.important_list)
+		#return len(self.important_list)
+		return int(self.targets_total["important"])
 	
 	#retorna tamanho da lista de tweets neutros	
 	def get_neutral_tam(self):
