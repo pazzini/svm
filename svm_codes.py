@@ -2,12 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import numpy as np
 import math
 import tweet_list
 import methods
 import sys
-from datetime import datetime
 from svmutil import *
 import time
 
@@ -81,7 +79,6 @@ resultados encontrados
 dictionary = {}
 feature_to_do = [0,2,7,8,12,13,14,17,18,22,25,27,29,30,31]
 ws = [[99.57,0.43],[99.75,0.25],[98.25,1.75],[99.43,0.57],[99.92,0.08],[99.97,0.03],[99.5,0.5],[99.17,0.83],[97.04,2.96]]
-targets = set(["important","neutral","not-important"])
 proportion = 70
 fold = 0
 repetition = 1
@@ -223,8 +220,10 @@ def write_acc(acc,parameter):
 	false_positive_num = int(total_not_important - acc_not_important_num)
 	false_negative_perc = 100. - acc_important_perc
 	false_negative_num = int(total_important - acc_important_num)
-	
-	f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
+	if find:
+		f = open(("saidas_users\\user" + str(user) + "\\find_percentage.out").replace("\\",separator), 'a')
+	else:
+		f = open(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator), 'a')
 	f.write(parameter[3:].split(" -v")[0] + " correto importante = " + str(acc_important_num) + "/" + str(total_important)+"("+str("%.2f"%acc_important_perc)+"%) ")
 	f.write("| correto nao-importante = " + str(acc_not_important_num) + "/" + str(total_not_important)+"("+str("%.2f"%acc_not_important_perc)+"%) ")
 	f.write("| falso positivo = " + str(false_positive_num) + "/" + str(total_not_important) + "(" + str("%.2f"%false_positive_perc)+"%) ")
@@ -352,55 +351,48 @@ Metodo que roda ate encontrar um parametro weight aceitavel
 """
 def find_good_parameter(user):
 	global list_results,repetition,repetition_no_changing,fast_mode
-	
 	mean = first_result = []
 	while (user + 1) > len(first_result):
 		first_result.append([0.,0.])
 	ws[user][0] = 100.0
-	ws[user][1] = 0.
-	original_change = 0.01
-	change = original_change
-	times = 1
+	ws[user][1] = 0.0
+	change = 0.01
 	while True:
-		for i in range(times):
-			ws[user][0] -= change
-			ws[user][1] += change
-			mean.append([0.,0.])
-			if fold != 0:
-				train_predict_fold(fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
-				if not fast_mode:
-					for j in range(int(fold)):
-						mean[-1][0] += list_results[-1*(1+j)][0]
-						mean[-1][1] += list_results[-1*(1+j)][1]
-					mean[-1][0] /= (fold)
-					mean[-1][1] /= (fold)
-				else:
-					mean[-1][0] += list_results[-1][0]
-					mean[-1][1] += list_results[-1][1]
-			elif fold == 0:
-				list_tweet.classification_division(proportion)
-				train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1]))
-				mean[-1][0] = list_results[-1][0]
-				mean[-1][1] = list_results[-1][1]
-			if first_result[user] == [0.,0.]:
-				first_result[user] = list_results[0]
-		times = 1
-		
+		fifteen = False
+		ws[user][0] -= change
+		ws[user][1] += change
+		mean.append([0.,0.])
+		if fold != 0:
+			train_predict_fold(fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
+			if not fast_mode:
+				for j in range(int(fold)):
+					mean[-1][0] += list_results[-1*(1+j)][0]
+					mean[-1][1] += list_results[-1*(1+j)][1]
+				mean[-1][0] /= (fold)
+				mean[-1][1] /= (fold)
+			else:
+				mean[-1][0] += list_results[-1][0]
+				mean[-1][1] += list_results[-1][1]
+		elif fold == 0:
+			list_tweet.classification_division(proportion)
+			train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1]))
+			mean[-1][0] = list_results[-1][0]
+			mean[-1][1] = list_results[-1][1]
+		if first_result[user] == [0.,0.]:
+			first_result[user] = list_results[0]
+
 		if abs(mean[-1][0] - mean[-1][1]) < 10.:
 			break
-		
-		if (list_results[-1][0] > list_results[-1][1]) or (abs(list_results[-1][0] - list_results[-1][1]) > 10):
+		elif abs(mean[-1][0] - mean[-1][1]) > 15.
 			change *= 1.3
-		else:
-			if abs(change) > abs(original_change):
-				change = (1 - (list_results[-1][1] / list_results[-1][0])) * change
-			else:
-				change = original_change
-
+		elif not fifteen:
+			change *= 0.2
+			fifteen = True
+		
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
 			change = -0.01
 		
-		if change < 0 and (mean[-1][1] < mean[-1][0]) and (abs(mean[-1][0] - mean[-1][1]) > 10.):
+		if change < 0 and (mean[-1][1] < mean[-1][0]):
 			change = 0.01
 			
 		print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
@@ -507,12 +499,11 @@ for p in sys.argv:
 			print("Parameter file_test error")
 
 list_tweet = tweet_list.tweet_list()
-print "user" + str(user)
-
 list_tweet.load_tweets(filename)
 if fold == "max":
 	fold = list_tweet.get_documents_list_tam()
 
+print "user" + str(user)
 if find:
 	find_good_parameter(user-1)
 	find = False
