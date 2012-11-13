@@ -383,9 +383,9 @@ def find_good_parameter(user):
 
 		if abs(mean[-1][0] - mean[-1][1]) < 10.:
 			break
-		elif abs(mean[-1][0] - mean[-1][1]) > 15.:
+		elif abs(mean[-1][0] - mean[-1][1]):
 			change *= 1.3
-		elif not fifteen:
+		if not fifteen and abs(mean[-1][0] - mean[-1][1]) < 15.:
 			change *= 0.2
 			fifteen = True
 		
