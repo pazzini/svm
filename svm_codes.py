@@ -255,7 +255,8 @@ def accuracy(classes,base_test,predicted,parameter):
 			acc[c] *= (100. / acc[str(c)+"total"])
 		else:
 			acc[c] = 100.
-		print "class[" + str(c) + "] : "+ str("%.2f"%(acc[c] * acc[str(c)+"total"])) + "(" + str("%.2f"%acc[c]) + "%)"
+		print "class[" + str(c) + "] : "+ str("%.0f"%(acc[c]/100. * acc[str(c)+"total"])) + "(" + str("%.2f"%acc[c]) + "%)"
+	if fold == 0: print "----------------------------------------"
 	list_results.append([acc[1],acc[-1]])
 	
 	write_acc(acc,parameter)
@@ -354,9 +355,9 @@ def find_good_parameter(user):
 	mean = first_result = []
 	while (user + 1) > len(first_result):
 		first_result.append([0.,0.])
-	ws[user][0] = 100.0
-	ws[user][1] = 0.0
-	change = 0.01
+	ws[user][0] = 99.0
+	ws[user][1] = 1.0
+	change = 1.
 	while True:
 		fifteen = False
 		ws[user][0] -= change
@@ -390,7 +391,7 @@ def find_good_parameter(user):
 			fifteen = True
 		
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
-			change = -0.01
+			change *= -1/2.
 		
 		if change < 0 and (mean[-1][1] < mean[-1][0]):
 			change = 0.01
@@ -500,8 +501,13 @@ for p in sys.argv:
 
 list_tweet = tweet_list.tweet_list()
 list_tweet.load_tweets(filename)
+
 if fold == "max":
 	fold = list_tweet.get_documents_list_tam()
+
+if fast_mode and fold == 0:
+	fast_mode = False
+	print "Fast Mode desatived, missing fold value"
 
 if list_tweet.get_important_tam() < 10:
 	print "quantidade de tweets importantes muita baixa:",list_tweet.get_important_tam()
@@ -521,6 +527,7 @@ else:
 			elif fold == 0:
 				if file_test == "":
 					list_tweet.classification_division(proportion)
+				print "Proportion:",str(proportion) + "%,","training:",str(list_tweet.get_training_base_tam()) + ","," test:",str(list_tweet.get_test_base_tam())
 				create_dictionary()
 				train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1]))
 			

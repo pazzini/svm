@@ -37,10 +37,22 @@ class tweet_list:
 	targets_total = {"important":0.,"neutral":0.,"not-important":0.}	
 	
 	#metodo para limpar todas as variaveis da classe, zera-las
-	def clean_all(self):
+	def clean_classification(self):
+		self.training_base = []
+		self.test_base = []
+		self.important_list = []
+		self.neutral_list = []
+		self.not_important_list = []
+		self.previously_searched = {}
+		self.previously_different = {}
+		self.count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
+		self.count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
+	
+	def clean_load(self):
 		self.tam_important = None
 		self.documents = []
-		self.test = []
+		self.training_base = []
+		self.test_base = []
 		self.important_list = []
 		self.neutral_list = []
 		self.not_important_list = []
@@ -49,7 +61,7 @@ class tweet_list:
 		self.count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
 		self.count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
 		self.targets_total = {"important":0.,"neutral":0.,"not-important":0.}	
-	
+		
 	#metodo para deletar a classe(possivelmente para liberar memoria de classe que nao serao mais usadas)
 	def delete(self):
 		del self
@@ -116,7 +128,7 @@ class tweet_list:
 			self.test_base.append(temp)
 	
 	def load_tweets(self, file_path):
-		self.clean_all()
+		self.clean_load()
 		self.file_path = parse(file_path)
 		self.tables = self.file_path.getElementsByTagName("table")
 		for item in self.tables:
@@ -167,8 +179,15 @@ class tweet_list:
 				colum.item(33).childNodes[0].nodeValue)
 			self.documents.append(temp)
 		self.training_base = list(self.documents)
+		if temp.get_manual_classification() == "not-important":
+			self.not_important_list.append(temp)
+		elif temp.get_manual_classification() == "important":
+			self.important_list.append(temp)
+		elif temp.get_manual_classification() == "neutral":
+			self.neutral_list.append(temp)
 	
 	def classification_division(self,train_percent):
+		self.clean_classification()
 		temp_train = []
 		temp_test = []
 		for tweet in self.documents:
@@ -202,8 +221,7 @@ class tweet_list:
 					self.count_target_test[target] += 1
 		self.training_base = list(temp_train)
 		self.test_base = list(temp_test)
-			
-		
+
 	#Busca que retorna a quantidade de diferentes valores de um feature
 	#Caso somente o feature seja passado como parametro, retorna a quantidade de valores diferentes para aquele feature
 	#caso um target tambem seja passado como parametro, retorna a quantidade de valores diferentes para aquele feature de um targed especifico(importante, nao-importante, neutro)
@@ -290,10 +308,6 @@ class tweet_list:
 		else:
 			print "WRONG TARGET"
 	
-	#retorna tamanho da base de treinamento
-	def get_training_base_tam(self):
-		return float(len(self.documents))
-	
 	#retorna lista de tweets importantes
 	def get_importants(self):
 		return list(self.important_list)
@@ -318,31 +332,30 @@ class tweet_list:
 	
 	#retorna tamanho da lista de tweets neutros	
 	def get_neutral_tam(self):
-		return len(self.neutral_list)
+		#return len(self.neutral_list)
+		return int(self.targets_total["neutral"])
 
 	#retorna quantidade de tweets da base de treinamento
 	def get_documents_list_tam(self):
 		return len(self.documents)
-	
-	#retorna quantidade de tweets da base de teste	
-	def get_test_list_tam(self):
-		return len(self.test)
 
 	#retorna a lista com os tweets da base de treinamento
 	def get_documents_list(self):
 		return list(self.documents)
-	
-	#retorna a lista com os tweets da base de teste	
-	def get_test_list(self):
-		return list(self.test)
 		
 	#retorna a lista dos atuais tweets na base de treinamento
 	def get_training_base(self):
 		return list(self.training_base)
+		
+	def get_training_base_tam(self):
+		return len(self.training_base)	
 	
 	#retorna a lista do atuais tweets na base de teste
 	def get_test_base(self):
 		return list(self.test_base)	
+
+	def get_test_base_tam(self):
+		return len(self.test_base)	
 	
 	#Modifica a atual lista de tweets na base de treinamento
 	def set_training_base(self,lt):
