@@ -358,19 +358,22 @@ def find_good_parameter(user):
 	ws[user][0] = 99.0
 	ws[user][1] = 1.0
 	change = 1.
+	temp_fold = fold
+	if fold > 10:
+		temp_fold = 10
 	while True:
 		fifteen = False
 		ws[user][0] -= change
 		ws[user][1] += change
 		mean.append([0.,0.])
 		if fold != 0:
-			train_predict_fold(fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
+			train_predict_fold(temp_fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
 			if not fast_mode:
 				for j in range(int(fold)):
 					mean[-1][0] += list_results[-1*(1+j)][0]
 					mean[-1][1] += list_results[-1*(1+j)][1]
-				mean[-1][0] /= (fold)
-				mean[-1][1] /= (fold)
+				mean[-1][0] /= (temp_fold)
+				mean[-1][1] /= (temp_fold)
 			else:
 				mean[-1][0] += list_results[-1][0]
 				mean[-1][1] += list_results[-1][1]
@@ -384,20 +387,23 @@ def find_good_parameter(user):
 
 		if abs(mean[-1][0] - mean[-1][1]) < 10.:
 			break
-		elif abs(mean[-1][0] - mean[-1][1]):
-			change *= 1.3
-		if not fifteen and abs(mean[-1][0] - mean[-1][1]) < 15.:
-			change *= 0.2
-			fifteen = True
+			
+		#elif abs(mean[-1][0] - mean[-1][1]):
+		#	change *= 1.3
+		#if not fifteen and abs(mean[-1][0] - mean[-1][1]) < 15.:
+		#	change *= 0.2
+		#	fifteen = True
 		
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
 			change *= -1/2.
 		
 		if change < 0 and (mean[-1][1] < mean[-1][0]):
-			change = 0.01
+			change *= -1/2.
 			
 		print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
 		print "-----------------------------------"
+	print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
+	print "-----------------------------------"
 	delete()
 	repetition = 1
 	repetition_no_changing = 1
@@ -516,6 +522,7 @@ else:
 	if find:
 		find_good_parameter(user-1)
 		find = False
+		sys.exit(0)
 	for i in range(repetition):
 		for j in range(repetition_no_changing):
 			
