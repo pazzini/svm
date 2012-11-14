@@ -20,11 +20,11 @@ def process_text(word,tam=3):
 		#stop_words = load_stop_words()
 		#if word_condition(word,tam) and (word not in stop_words):
 		if word_condition(word,tam):
-			return word.lower()
+			return unicode(word.lower())
 		else:
-			return ""
+			return u""
 	except:
-		return ""
+		return u""
 
 def word_condition(text,tam=3):
 	if len(text) > tam and text.find("http:") == -1:
