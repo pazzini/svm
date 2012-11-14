@@ -13,7 +13,8 @@ if "win" in sys.platform:
 
 conj = [[0,2,7,8,12,13,14,17,18,22,25,27,29,30,31]]
 
-users = [1,2,3,4,5,6,7,8,9]
+#users = [1,2,3,4,5,6,7,8,9]
+users = range(143,185)
 
 count = 0
 for i in users:
@@ -25,7 +26,7 @@ for i in users:
 				s += (str(c[n]) + ",")
 			else:
 				s += (str(c[n]))
-		s = ("python svm_codes.py users\\user" + str(i) + ".xml -d -w1 100.0 -w-1 0.0 -r 0.1 -t 1 -v max -fm -find").replace("\\",separator)
+		s = ("python svm_codes.py users\\user" + str(i) + ".xml -d -v 10").replace("\\",separator)
 		time_ini = time.time()
 		os.system(s,)
 		count += 1
