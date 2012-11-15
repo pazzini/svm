@@ -254,10 +254,10 @@ class Tweet:
 		return self.retweeted_twitter_status_id
 	
 	def get_retweet_count(self,retweet_count = None):
+		rc = retweet_count
 		if retweet_count == None:
-			retweet_count = self.retweet_count
-		#return self.retweet_count
-		return self.histogram_classification(retweet_count, 0, 10, 12)
+			rc = self.retweet_count
+		return self.histogram_classification(rc, 0, 10, 12)
 	
 	def get_retweeted(self):
 		return self.retweeted

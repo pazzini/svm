@@ -27,11 +27,15 @@ def get_best_results():
 		results = {}
 		ws = {}
 		f_in = open(sys.argv[1],"r")
+		menor = ("user",100)
 		for line in f_in:
 			user = line.split(":")[0]
+			if menor[0] != user:
+				menor = (user,100)
 			acc_pos = float(line.split("correto importante = ")[1].split("%")[0])
 			acc_neg = float(line.split("correto nao-importante = ")[1].split("%")[0])
-			if abs(acc_pos - acc_neg) < 10.:
+			if abs(acc_pos - acc_neg) < menor[1]:
+				menor = (user,abs(acc_pos - acc_neg))
 				results[int(user.split("r")[1])] = line
 				w_pos = line.split("w1 = ")[1].split()[0]
 				w_neg = line.split("w-1 = ")[1].split()[0]
