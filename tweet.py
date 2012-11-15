@@ -287,19 +287,23 @@ class Tweet:
 		return self.protected
 		
 	def get_followers_count(self,followers_count = None):
-		fc = self.followers_count
+		fc = followers_count
 		if followers_count == None:
 			fc = self.followers_count
 		return self.histogram_classification(fc, 0, 60000, 12)
 		
 	def get_friends_count(self,friends_count = None):
-		fc = self.friends_count
+		fc = friends_count
 		if friends_count == None:
 			fc = self.friends_count
 		return self.histogram_classification(fc, 0, 1250, 15)
 		
-	def get_favourites_count(self):
-		return self.favourites_count
+	def get_favourites_count(self,favourites_count = None):
+		fc = favourites_count
+		if favourites_count == None:
+			fc = self.favourites_count
+		return self.histogram_classification(fc,0,1250,15)
+		#return self.favourites_count
 		
 	def get_user_created_at(self):
 		return self.user_created_at
@@ -314,7 +318,7 @@ class Tweet:
 		return self.geo_enabled
 		
 	def get_statuses_count(self,statuses_count = None):
-		sc = self.statuses_count
+		sc = statuses_count
 		if statuses_count == None:
 			sc = self.statuses_count
 		return self.histogram_classification(sc, 0, 25000, 16)
@@ -326,7 +330,7 @@ class Tweet:
 		return self.contributors_enabled
 		
 	def get_listed_count(self,listed_count = None):
-		lc = self.listed_count
+		lc = listed_count
 		if listed_count == None:
 			lc = self.listed_count
 		return self.histogram_classification(lc, 0, 2500, 12)
@@ -603,7 +607,7 @@ class Tweet:
 		elif feature == "friends_count":
 			return self.get_friends_count()
 		elif feature == "favourites_count":
-			return self.favourites_count()
+			return self.get_favourites_count()
 		elif feature == "user_created_at":
 			return self.get_user_created_at()
 		elif feature == "utc_offset":
