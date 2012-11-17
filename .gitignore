@@ -6,3 +6,4 @@ delete.py
 count.py
 run_media.py
 *.pyc
+*.bat

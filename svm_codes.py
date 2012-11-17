@@ -96,6 +96,7 @@ ws = [[96.0,4.0],[98.0,2.0],[92.0,8.0],[97.0,3.0],[99.375,0.625],[99.5625,0.4375
 [99.625,0.375],[99.0,1.0],[99.828125,0.171875],[99.375,0.625],[99.92578125,0.07421875],[99.625,0.375],[99.703125,0.296875],[99.5,0.5],[99.75,0.25],[99.5625,0.4375],[99.0,1.0],
 [99.875,0.125],[99.0,1.0],[99.5625,0.4375],[99.5625,0.4375],[99.0,1.0],[99.5,0.5],[99.71875,0.28125],[99.75,0.25],[99.890625,0.109375],[99.90625,0.09375],[98.75,1.25],
 [99.375,0.625],[99.8515625,0.1484375],[99.375,0.625],[99.0,1.0],[99.59375,0.40625],[99.765625,0.234375],[99.78125,0.21875],[99.625,0.375],[99.78125,0.21875]]
+
 proportion = 70
 fold = 0
 repetition = 1
@@ -106,6 +107,7 @@ list_results = []
 fast_mode = False
 fm_training_base = None
 file_test = ""
+precision = 10
 
 """
 Metodo que cria os dicionarios, cara atributo utilizado para classificar
@@ -376,8 +378,8 @@ def find_good_parameter(user):
 	ws[user][1] = 1.0
 	change = 1.
 	temp_fold = fold
-	if fold > 10:
-		temp_fold = 10
+	#if fold > 10:
+	#	temp_fold = 10
 	while True:
 		fifteen = False
 		ws[user][0] -= change
@@ -402,7 +404,7 @@ def find_good_parameter(user):
 		if first_result[user] == [0.,0.]:
 			first_result[user] = list_results[0]
 
-		if abs(mean[-1][0] - mean[-1][1]) < 10.:
+		if abs(mean[-1][0] - mean[-1][1]) < precision:
 			break
 			
 		#elif abs(mean[-1][0] - mean[-1][1]):
@@ -417,10 +419,11 @@ def find_good_parameter(user):
 		if change < 0 and (mean[-1][1] < mean[-1][0]):
 			change *= -1/2.
 			
-		print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
+		print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1]),", mean: [%.3f,%.3f]"%(mean[-1][0],mean[-1][1]),", diff: %.3f"%abs(mean[-1][0] - mean[-1][1])
 		print "-----------------------------------"
 	print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
 	print "-----------------------------------"
+	os.system(("python media_w.py saidas_user+1s\\user+1" + str(user+1) + "\\find_percentage.out " + "saidas_user+1s\\user+1" + str(user+1) + "\\find_media_user+1"+str(user+1)).replace("\\",separator))
 	delete()
 	repetition = 1
 	repetition_no_changing = 1
@@ -449,7 +452,7 @@ try:
 	filename = sys.argv[1]
 except:
 	print "No input file."
-user = int(((filename.split("\\".replace("\\",separator))[1]).split(".")[0])[4:])
+user = int(((filename.split(separator)[1]).split(".")[0])[4:])
 
 while user > len(ws):
 	ws.append([100.,0.])
@@ -521,6 +524,12 @@ for p in sys.argv:
 		file_test = sys.argv[sys.argv.index(p)+1]
 		if not os.path.exists(file_test.replace("\\",separator)):
 			print("Parameter file_test error")
+	elif p == "-a":
+		try:
+			precision = float(sys.argv[sys.argv.index(p)+1])
+		except:
+			print "Parameter -a error."
+			sys.exit(0)
 
 list_tweet = tweet_list.tweet_list()
 list_tweet.load_tweets(filename)
