@@ -359,6 +359,8 @@ class tweet_list:
 	
 	#Modifica a atual lista de tweets na base de treinamento
 	def set_training_base(self,lt):
+		self.previously_searched {}
+		self.previously_different = {}
 		self.training_base = list(lt)
 	
 	#Modifica a atual lista de tweets na base de teste
