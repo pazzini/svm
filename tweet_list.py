@@ -255,47 +255,42 @@ class tweet_list:
 		temp += self.search("not-important",feature)
 		return float(temp)
 
-	def search(self, target=None, feature=None, value = None):
-		if target != None:
-			if value == None:
-				i = 0.
-				if(target, feature) not in self.previously_searched:
-					temp_list = self.training_base
-					for tweet_data in temp_list:
-						if isinstance(tweet_data.get(feature), list):
-							i += len(tweet_data.get(feature))
-						else:
-							if tweet_data.get(feature) != "NULL":
-								i += 1.
-					self.previously_searched[(target, feature)] = float(i)
-					return float(i)
-				else:
-					return float(self.previously_searched[(target, feature)])
+	def search(self, feature=None, value = None):
+		if value == None:
+			i = 0.
+			if(feature) not in self.previously_searched:
+				temp_list = self.training_base
+				for tweet_data in temp_list:
+					if isinstance(tweet_data.get(feature), list):
+						i += len(tweet_data.get(feature))
+					else:
+						if tweet_data.get(feature) != "NULL":
+							i += 1.
+				self.previously_searched[feature] = float(i)
+				return float(i)
 			else:
-				i = 0.
-				otimization = 0.
-				if (target, feature, value) not in self.previously_searched:
-					temp_list = self.training_base
-					for tweet_data in temp_list:
-						if isinstance(tweet_data.get(feature), list):
-							for list_data in tweet_data.get(feature):
-								otimization += 1.
-								if list_data == value:
-									i += 1.
-						else:
-							otimization += 1.
-							if(tweet_data.equals(feature,value)):
-								i += 1.
-					self.previously_searched[(target, feature, value)] = float(i)
-					self.previously_searched[(target, feature)] = float(otimization)
-					return float(i)
-				else:
-					return float(self.previously_searched[(target, feature, value)])
+				return float(self.previously_searched[feature])
 		else:
-			total = self.search("important", feature, value)
-			#total += self.search("not-important", feature, value)
-			#total += self.search("neutral", feature, value)
-			return 3 * total #3x é para manter os resultados, se removido necessario gerar novos resultados
+			i = 0.
+			otimization = 0.
+			if (feature, value) not in self.previously_searched:
+				temp_list = self.training_base
+				for tweet_data in temp_list:
+					if isinstance(tweet_data.get(feature), list):
+						for list_data in tweet_data.get(feature):
+							otimization += 1.
+							if list_data == value:
+								i += 1.
+					else:
+						otimization += 1.
+						if(tweet_data.equals(feature,value)):
+							i += 1.
+				self.previously_searched[(feature, value)] = float(i)
+				self.previously_searched[feature] = float(otimization)
+				return float(i)
+			else:
+				return float(self.previously_searched[(feature, value)])
+			#return 3 * total #3x é para manter os resultados, se removido necessario gerar novos resultados
 	
 	#retorna a quantidade de tweets de um determinado target(importante, neutro, nao-importante			
 	def get_target_tam(self,target):
@@ -307,10 +302,13 @@ class tweet_list:
 			return float(len(self.not_important_list))
 		else:
 			print "WRONG TARGET"
-	
+			
+	def set_previously_searched(self,p):
+		self.previously_searched = p
+		
 	def get_previously_searched(self):
 		return dict(self.previously_searched)
-	
+
 	#retorna lista de tweets importantes
 	def get_importants(self):
 		return list(self.important_list)

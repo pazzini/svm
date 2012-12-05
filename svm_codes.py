@@ -117,18 +117,34 @@ valores de todos os tweets da base de treinamento.
 def create_dictionary():
 	global dictionary
 	dictionary = {}
+	dic_values = {}
 	stop_words = methods.load_stop_words()
 	tweet_list = list_tweet.get_training_base()
 	for i in feature_to_do:
 		dictionary[features[i]] = set([])
+		dic_values[features[i]] = 0
 		for tweet in tweet_list:
 			values = tweet.get(features[i])
+			
 			if isinstance(values,list):
 				for value in values:
+					dic_values[features[i]] += 1
+					if (features[i],value) not in dic_values:
+						dic_values[(features[i],value)] = 0
+					
 					if value not in stop_words:
 						dictionary[features[i]].add(value)
+						
+					dic_values[(features[i],value)] += 1
+						
 			else:
+				dic_values[features[i]] += 1
+				if (features[i],values) not in dic_values:
+					dic_values[(features[i],values)] = 0
+				dic_values[(features[i],values)] += 1
+				
 				dictionary[features[i]].add(values)
+	list_tweet.set_previously_searched(dict(dic_values))
 
 """Cria a base de treinamento"""
 def create_training_base():
@@ -183,6 +199,7 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			list_tweet.set_training_base(temp_training_base)
 			
 			create_dictionary()
+			#save_previously_searched()
 			
 			l_training,v_training = create_base_list(temp_training_base)
 			training_base = [l_training,v_training]
@@ -335,9 +352,9 @@ def idf(tweet_list,tweet,word,feat):
 	x = 1
 	values = tweet.get(features[feat])
 	if isinstance(values,list):
-		return values.count(word) * math.log(len(tweet_list) / (float(list_tweet.search(None,features[feat],word) + x)))
+		return values.count(word) * math.log(len(tweet_list) / (float(list_tweet.search(features[feat],word) + x)))
 	else:
-		return math.log(len(tweet_list) / (float(list_tweet.search(None,features[feat],word) + x)))
+		return math.log(len(tweet_list) / (float(list_tweet.search(features[feat],word) + x)))
 
 """
 Metodo salva todos os dicionarios criados cada um em um 
@@ -345,9 +362,10 @@ arquivo com o nome do feature correspondente
 """
 def save_dictionary():
 	for dic in dictionary:
-		f = open(dic,"w")
+		f = open("dics/" + str(dic),"a")
 		for word in dictionary[dic]:
-			f.write(word.encode("utf-8") + "\n")
+			f.write(unicode(word).encode("utf-8") + "\n")
+		f.write("\n" + "-" * 50 + "\n")
 		f.close()
 
 def save_previously_searched():
@@ -386,8 +404,7 @@ def find_good_parameter(user):
 	ws[user][1] = 1.0
 	change = 1.
 	temp_fold = fold
-	#if fold > 10:
-	#	temp_fold = 10
+
 	while True:
 		fifteen = False
 		ws[user][0] -= change
@@ -415,12 +432,6 @@ def find_good_parameter(user):
 		if abs(mean[-1][0] - mean[-1][1]) < precision:
 			break
 			
-		#elif abs(mean[-1][0] - mean[-1][1]):
-		#	change *= 1.3
-		#if not fifteen and abs(mean[-1][0] - mean[-1][1]) < 15.:
-		#	change *= 0.2
-		#	fifteen = True
-		
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
 			change *= -1/2.
 		
@@ -556,7 +567,7 @@ else:
 	if find:
 		find_good_parameter(user-1)
 		find = False
-		sys.exit(0)
+		#sys.exit(0)
 	for i in range(repetition):
 		for j in range(repetition_no_changing):
 			
