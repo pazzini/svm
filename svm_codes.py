@@ -117,18 +117,32 @@ valores de todos os tweets da base de treinamento.
 def create_dictionary():
 	global dictionary
 	dictionary = {}
+	dic_values = {}
 	stop_words = methods.load_stop_words()
 	tweet_list = list_tweet.get_training_base()
 	for i in feature_to_do:
 		dictionary[features[i]] = set([])
+		dic_values[features[i]] = 0
 		for tweet in tweet_list:
 			values = tweet.get(features[i])
+			
 			if isinstance(values,list):
 				for value in values:
+					if (features[i],value) not in dic_values:
+						dic_values[(features[i],value)] = 0
+					
 					if value not in stop_words:
 						dictionary[features[i]].add(value)
+						
+					dic_values[(features[i],value)] += 1
+						
 			else:
+				if (features[i],values) not in dic_values:
+					dic_values[(features[i],values)] = 0
+				dic_values[(features[i],values)] += 1
+				
 				dictionary[features[i]].add(values)
+	list_tweet.set_previously_searched(dict(dic_values))
 
 """Cria a base de treinamento"""
 def create_training_base():
@@ -335,9 +349,9 @@ def idf(tweet_list,tweet,word,feat):
 	x = 1
 	values = tweet.get(features[feat])
 	if isinstance(values,list):
-		return values.count(word) * math.log(len(tweet_list) / (float(list_tweet.search(None,features[feat],word) + x)))
+		return values.count(word) * math.log(len(tweet_list) / (float(list_tweet.search(features[feat],word) + x)))
 	else:
-		return math.log(len(tweet_list) / (float(list_tweet.search(None,features[feat],word) + x)))
+		return math.log(len(tweet_list) / (float(list_tweet.search(features[feat],word) + x)))
 
 """
 Metodo salva todos os dicionarios criados cada um em um 
