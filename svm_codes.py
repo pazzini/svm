@@ -199,7 +199,7 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			list_tweet.set_training_base(temp_training_base)
 			
 			create_dictionary()
-			save_previously_searched()
+			#save_previously_searched()
 			
 			l_training,v_training = create_base_list(temp_training_base)
 			training_base = [l_training,v_training]
@@ -373,6 +373,7 @@ def save_previously_searched():
 	f = open("dics/previously" ,"a")
 	for feature in temp:
 		f.write(unicode(feature).encode("utf-8") + " : " + str(temp[feature]) + "\n")
+	f.write("-" * 50 + "\n")
 	f.close()
 
 """
@@ -403,8 +404,7 @@ def find_good_parameter(user):
 	ws[user][1] = 1.0
 	change = 1.
 	temp_fold = fold
-	#if fold > 10:
-	#	temp_fold = 10
+
 	while True:
 		fifteen = False
 		ws[user][0] -= change
@@ -432,12 +432,6 @@ def find_good_parameter(user):
 		if abs(mean[-1][0] - mean[-1][1]) < precision:
 			break
 			
-		#elif abs(mean[-1][0] - mean[-1][1]):
-		#	change *= 1.3
-		#if not fifteen and abs(mean[-1][0] - mean[-1][1]) < 15.:
-		#	change *= 0.2
-		#	fifteen = True
-		
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
 			change *= -1/2.
 		
