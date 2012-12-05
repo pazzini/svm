@@ -128,6 +128,7 @@ def create_dictionary():
 			
 			if isinstance(values,list):
 				for value in values:
+					dic_values[features[i]] += 1
 					if (features[i],value) not in dic_values:
 						dic_values[(features[i],value)] = 0
 					
@@ -137,6 +138,7 @@ def create_dictionary():
 					dic_values[(features[i],value)] += 1
 						
 			else:
+				dic_values[features[i]] += 1
 				if (features[i],values) not in dic_values:
 					dic_values[(features[i],values)] = 0
 				dic_values[(features[i],values)] += 1
@@ -197,6 +199,7 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			list_tweet.set_training_base(temp_training_base)
 			
 			create_dictionary()
+			save_previously_searched()
 			
 			l_training,v_training = create_base_list(temp_training_base)
 			training_base = [l_training,v_training]
@@ -359,10 +362,18 @@ arquivo com o nome do feature correspondente
 """
 def save_dictionary():
 	for dic in dictionary:
-		f = open(dic,"w")
+		f = open("dics/" + str(dic),"a")
 		for word in dictionary[dic]:
-			f.write(word.encode("utf-8") + "\n")
+			f.write(unicode(word).encode("utf-8") + "\n")
+		f.write("\n" + "-" * 50 + "\n")
 		f.close()
+
+def save_previously_searched():
+	temp = list_tweet.get_previously_searched()
+	f = open("dics/previously" ,"a")
+	for feature in temp:
+		f.write(unicode(feature).encode("utf-8") + " : " + str(temp[feature]) + "\n")
+	f.close()
 
 """
 Deleta as saidas criadas
@@ -562,7 +573,7 @@ else:
 	if find:
 		find_good_parameter(user-1)
 		find = False
-		sys.exit(0)
+		#sys.exit(0)
 	for i in range(repetition):
 		for j in range(repetition_no_changing):
 			

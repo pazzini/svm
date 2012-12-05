@@ -306,6 +306,9 @@ class tweet_list:
 	def set_previously_searched(self,p):
 		self.previously_searched = p
 		
+	def get_previously_searched(self):
+		return dict(self.previously_searched)
+		
 	#retorna lista de tweets importantes
 	def get_importants(self):
 		return list(self.important_list)
