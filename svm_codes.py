@@ -43,7 +43,7 @@ features = ["text", #0
 			"time_zone", #22
 			"geo_enabled", #23
 			"statuses_count", #24
-			"lang", #25
+			"lang", #25só esses que eu 
 			"contributors_enabled", #26
 			"listed_count", #27
 			"is_translator", #28
@@ -208,7 +208,9 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			
 			test_base = [l_test,v_test]
 			train_predict(training_base,test_base,parameter)
-		save_previously_searched()
+			
+		#save_previously_searched()
+		
 		t2 = time.time() - t1
 		previous_times[pos] = t2
 		pos += 1
@@ -440,9 +442,9 @@ def find_good_parameter(user):
 			
 		print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1]),", mean: [%.3f,%.3f]"%(mean[-1][0],mean[-1][1]),", diff: %.3f"%abs(mean[-1][0] - mean[-1][1])
 		print "-----------------------------------"
-	print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1])
+	print "rate: %.4f"%change,", weight: [%.3f,%.3f]"%(ws[user][0],ws[user][1]),", mean: [%.3f,%.3f]"%(mean[-1][0],mean[-1][1]),", diff: %.3f"%abs(mean[-1][0] - mean[-1][1])
 	print "-----------------------------------"
-	os.system(("python media_w.py saidas_user+1s\\user+1" + str(user+1) + "\\find_percentage.out " + "saidas_user+1s\\user+1" + str(user+1) + "\\find_media_user+1"+str(user+1)).replace("\\",separator))
+	os.system(("python media_w.py saidas_users\\user" + str(user+1) + "\\find_percentage.out " + "saidas_users\\user" + str(user+1) + "\\find_media_user"+str(user+1)).replace("\\",separator))
 	delete()
 	repetition = 1
 	repetition_no_changing = 1

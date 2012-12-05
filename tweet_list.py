@@ -247,13 +247,6 @@ class tweet_list:
 			return len(set_temp)
 		else:
 			return self.previously_different[(target,feature)]
-	
-	#retorna o metodo search para todos os targers de um feature
-	def search_values_all_targets(self,feature):
-		temp = self.search("important",feature)
-		temp += self.search("neutral",feature)
-		temp += self.search("not-important",feature)
-		return float(temp)
 
 	def search(self, feature=None, value = None):
 		if value == None:
