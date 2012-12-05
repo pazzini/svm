@@ -191,7 +191,7 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			
 			test_base = [l_test,v_test]
 			train_predict(training_base,test_base,parameter)
-		
+		save_previously_searched()
 		t2 = time.time() - t1
 		previous_times[pos] = t2
 		pos += 1
@@ -349,6 +349,14 @@ def save_dictionary():
 		for word in dictionary[dic]:
 			f.write(word.encode("utf-8") + "\n")
 		f.close()
+
+def save_previously_searched():
+	temp = list_tweet.get_previously_searched()
+	f = open("dics/previously" ,"a")
+	for feature in temp:
+		f.write(unicode(feature).encode("utf-8") + " : " + str(temp[feature]) + "\n")
+	f.write("-" * 50 + "\n")
+	f.close()
 
 """
 Deleta as saidas criadas

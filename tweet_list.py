@@ -308,6 +308,9 @@ class tweet_list:
 		else:
 			print "WRONG TARGET"
 	
+	def get_previously_searched(self):
+		return dict(self.previously_searched)
+	
 	#retorna lista de tweets importantes
 	def get_importants(self):
 		return list(self.important_list)
@@ -359,7 +362,7 @@ class tweet_list:
 	
 	#Modifica a atual lista de tweets na base de treinamento
 	def set_training_base(self,lt):
-		self.previously_searched {}
+		self.previously_searched = {}
 		self.previously_different = {}
 		self.training_base = list(lt)
 	
