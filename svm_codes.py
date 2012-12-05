@@ -108,6 +108,7 @@ fast_mode = False
 fm_training_base = None
 file_test = ""
 precision = 10
+zeros = {}
 
 """
 Metodo que cria os dicionarios, cara atributo utilizado para classificar
@@ -277,10 +278,11 @@ na pasta do respectivo usuário.
 """
 def accuracy(classes,base_test,predicted,parameter):
 	acc = {}
-	global list_results
+	global list_results,zeros
 
 	for c in classes:
 		acc[c] = 0.
+		zeros[c] = 0
 		acc[str(c) + "total"] = 0
 
 	for i in range(len(base_test)):
@@ -292,7 +294,9 @@ def accuracy(classes,base_test,predicted,parameter):
 		if acc[str(c)+"total"] != 0:
 			acc[c] *= (100. / acc[str(c)+"total"])
 		else:
-			acc[c] = 100.
+			#acc[c] = 100.
+			acc[c] = 0.
+			zeros[c] += 1
 		print "class[" + str(c) + "] : "+ str("%.0f"%(acc[c]/100. * acc[str(c)+"total"])) + "(" + str("%.2f"%acc[c]) + "%)"
 	if fold == 0: print "----------------------------------------"
 	list_results.append([acc[1],acc[-1]])
@@ -418,16 +422,17 @@ def find_good_parameter(user):
 				for j in range(int(fold)):
 					mean[-1][0] += list_results[-1*(1+j)][0]
 					mean[-1][1] += list_results[-1*(1+j)][1]
-				mean[-1][0] /= (temp_fold)
-				mean[-1][1] /= (temp_fold)
+				mean[-1][0] /= (temp_fold - zeros[1])
+				mean[-1][1] /= (temp_fold - zeros[-1])
 			else:
-				mean[-1][0] += list_results[-1][0]
-				mean[-1][1] += list_results[-1][1]
+				mean[-1][0] = list_results[-1][0]
+				mean[-1][1] = list_results[-1][1]
 		elif fold == 0:
 			list_tweet.classification_division(proportion)
 			train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1]))
 			mean[-1][0] = list_results[-1][0]
 			mean[-1][1] = list_results[-1][1]
+		
 		if first_result[user] == [0.,0.]:
 			first_result[user] = list_results[0]
 
