@@ -21,7 +21,7 @@ def get_best_results():
 		return False
 	else:
 		if len(sys.argv) == 3:
-			file_name_out = sys.arv[2]
+			file_name_out = sys.argv[2]
 		else:
 			file_name_out = "filtered_results.txt"
 		results = {}

@@ -201,14 +201,15 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			
 			create_dictionary()
 			#save_previously_searched()
-			
+
 			l_training,v_training = create_base_list(temp_training_base)
 			training_base = [l_training,v_training]
 			list_tweet.set_test_base(temp_test_base)
 			l_test,v_test = create_base_list(temp_test_base)
 			
-			test_base = [l_test,v_test]
-			train_predict(training_base,test_base,parameter)
+			if len(l_test) != 0:
+				test_base = [l_test,v_test]
+				train_predict(training_base,test_base,parameter)
 			
 		#save_previously_searched()
 		
@@ -395,8 +396,8 @@ def delete():
 		os.system((del_command + " saidas_users\\user" + str(user) + "\\saida").replace("\\",separator))
 	if os.path.exists(("saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator)):
 		os.system((del_command + " saidas_users\\user" + str(user) + "\\percentage.out").replace("\\",separator))
-	if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
-		os.system((del_command + " saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator))
+	#if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
+	#	os.system((del_command + " saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator))
 
 """
 Metodo que roda ate encontrar um parametro weight aceitavel
@@ -436,7 +437,7 @@ def find_good_parameter(user):
 		if first_result[user] == [0.,0.]:
 			first_result[user] = list_results[0]
 
-		if abs(mean[-1][0] - mean[-1][1]) < precision:
+		if abs(mean[-1][0] - mean[-1][1]) < precision or change <= 1e-10:
 			break
 			
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
@@ -560,6 +561,8 @@ for p in sys.argv:
 list_tweet = tweet_list.tweet_list()
 list_tweet.load_tweets(filename)
 
+
+
 if fold == "max":
 	fold = list_tweet.get_documents_list_tam()
 
@@ -592,8 +595,8 @@ else:
 			
 		ws[user-1][0] -= change
 		ws[user-1][1] += change
-		if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
-			os.system((del_command + " saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator))
+		#if os.path.exists(("saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator)):
+			#os.system((del_command + " saidas_users\\user" + str(user) + "\\media_user" + str(user)).replace("\\",separator))
 		os.system(("python media_w.py saidas_users\\user" + str(user) + "\\percentage.out " + "saidas_users\\user" + str(user) + "\\media_user"+str(user)).replace("\\",separator))
 		os.system(("python media_w.py saidas_users\\user" + str(user) + "\\percentage.out " + "saidas_users\\media_users").replace("\\",separator))
 

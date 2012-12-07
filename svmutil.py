@@ -58,6 +58,7 @@ def evaluations(ty, pv):
 	ACC = {}
 	total_error = total_correct = 0
 	sumv = sumy = sumvv = sumyy = sumvy = 0
+
 	for v, y in zip(pv, ty):
 		if y == v: 
 			total_correct += 1
@@ -78,7 +79,11 @@ def evaluations(ty, pv):
 		if isinstance(c,int) and c not in ACC:
 			ACC[int(c)] = 0.
 			ACC[str(int(c))+"total"] = (ty.count(c))
-	ACC["total"] = 100.0*total_correct/l
+	if total_correct != 0:
+		ACC["total"] = 100.0*total_correct/l
+	else:
+		ACC["total"] = 0.0
+
 	MSE = total_error/l
 	try:
 		SCC = ((l*sumvy-sumv*sumy)*(l*sumvy-sumv*sumy))/((l*sumvv-sumv*sumv)*(l*sumyy-sumy*sumy))
@@ -249,7 +254,8 @@ def svm_predict(y, x, m, options=""):
 				values = dec_values[:nr_classifier]
 			pred_labels += [label]
 			pred_values += [values]
-
+	
+	
 	ACC_t, MSE, SCC = evaluations(y, pred_labels)
 	ACC = ACC_t["total"]
 	l = len(y)
