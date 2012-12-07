@@ -138,11 +138,13 @@ def create_dictionary():
 						dictionary[features[i]].add(value)
 						previously_searched[(features[i],value)] += 1
 			else:
-				if values not in stop_words:
-					if (features[i],values) not in previously_searched:
-						previously_searched[(features[i],values)] = 0
-					previously_searched[(features[i],values)] += 1
-					dictionary[features[i]].add(values)
+				#if values not in stop_words:
+				#nao precisa de stop word, os atributos textuais são retornados
+				#como listas
+				if (features[i],values) not in previously_searched:
+					previously_searched[(features[i],values)] = 0
+				previously_searched[(features[i],values)] += 1
+				dictionary[features[i]].add(values)
 				
 	tweets.set_previously_searched(dict(previously_searched))
 
