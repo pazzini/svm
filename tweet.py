@@ -48,7 +48,6 @@ class Tweet:
 	entity_hashtag = None
 	entity_url = None
 	manual_classification = None
-	probability = {"important":0.,"neutral":0.,"not-important":0.}
 	
 	def __init__(self, text = None, status_created_at = None, source = None, in_reply_to_twitter_status_id = None, in_reply_to_twitter_user_id = None, in_reply_to_twitter_user_screen_name = None, retweeted_twitter_status_id = None, retweet_count = None, retweeted = None, geo = None, contributors = None, name = None, screen_name = None, location = None, description = None, url = None, protected = None, followers_count = None, friends_count = None, favourites_count = None, user_created_at = None, utc_offset = None, time_zone = None, geo_enabled = None, statuses_count = None, lang = None, contributors_enabled = None, listed_count = None, is_translator = None, favorited = None, entity_user_mention = None, entity_hashtag = None, entity_url = None, manual_classification = None):
 		self.text = text
@@ -108,7 +107,6 @@ class Tweet:
 				for word in temp:
 					processed_word = methods.process_text(word,min_tam_word)
 					if processed_word != "" and (processed_word not in stop_words):
-						processed_word = methods.strip_accents(processed_word.decode("utf-8"))
 						filtered_text.append(processed_word)
 			else:
 				filtered_text = temp

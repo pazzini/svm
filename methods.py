@@ -8,6 +8,7 @@ stop_words = []
 stop_words_path = ""
 
 def process_text(word,tam=3):
+	word = strip_accents(word)
 	try:
 		word = word.decode("utf-8")
 		characters = [u".",u":",u";",u"\'",u"\"",u"!",u")",u"(",u"{",u"}",u"[",u"]",u"*",u",",u"<",u">",u"?",u"=",u"+",u"-",u"\\",u"/",u"_",u"¿",u"“",u"`",u"\""]
@@ -38,9 +39,8 @@ def load_stop_words(file_path = "stop_words.txt"):
 		stop_words = []
 		f = open(file_path,"r")
 		for word in f:
-			word_filtered = process_text(word).strip('\n')
-			stop_words.append(word_filtered.decode('utf-8'))
-			#stop_words.append(word)#antigo
+			word_filtered = process_text((word.strip('\n')).decode('utf-8'))
+			stop_words.append(word_filtered)
 		f.close()
 		stop_words_path = file_path
 	return stop_words

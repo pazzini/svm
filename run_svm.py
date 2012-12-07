@@ -26,8 +26,8 @@ print len(conj)
 """
 
 #users = [1,2,3,4,5,6,7,8,9]
-users = [2]
-#users = range(1,10)
+#users = [2]
+users = range(1,10)
 #users = range(143,185)
 
 count = 0
@@ -40,7 +40,7 @@ for i in users:
 				s += (str(c[n]) + ",")
 			else:
 				s += (str(c[n]))
-		s = ("python svm_codes.py users\\user" + str(i) + ".xml -f " + s + " -d -v max").replace("\\",separator)
+		s = ("python svm_codes.py users\\user" + str(i) + ".xml -f " + s + " -d -v max -find").replace("\\",separator)
 		time_ini = time.time()
 		os.system(s,)
 		count += 1
