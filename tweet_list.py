@@ -10,69 +10,58 @@ import tweet
 #classe que contem a lista com todos os tweets, tanto da base de treinamento
 #como da base de teste
 class tweet_list:
-
-	tam_important = None
 	
-	#documents = lista dos tweets da base de treinamento
-	#test = lista dos tweets da base de teste
+	#documents = lista dos tweets
+	#training_base = lista dos tweets na base de treinamento
+	#test_base = lista dos tweets da base de teste
 	documents = []
 	training_base = []
 	test_base = []
 	
 	#lista de tweets importantes, neutros e nao-importantes
-	important_list = []
-	neutral_list = []
-	not_important_list = []
+	##REMOVIDO Teste otimização
+	#important_list = []
+	#neutral_list = []
+	#not_important_list = []
 	
-	#valores buscados previamente, funciona tipo uma especie de cache
+	#valores buscados previamente, uma cache que
 	#ajuda a acelerar o processamento
+	#Alterado, valores passados pelo metodo create_dictionary (acelerou)
 	previously_searched = {}
 	previously_different = {}
 	
 	#variaveis que contem a quantidade te cada tipo de tweet em cada lista de tweets
 	#base de teste, base de treino e todal
-	count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
-	count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
 	targets_total = {"important":0.,"neutral":0.,"not-important":0.}	
 	
 	#metodo para limpar todas as variaveis da classe, zera-las
 	def clean_classification(self):
 		self.training_base = []
 		self.test_base = []
-		self.important_list = []
-		self.neutral_list = []
-		self.not_important_list = []
+		#self.important_list = []
+		#self.neutral_list = []
+		#self.not_important_list = []
 		self.previously_searched = {}
 		self.previously_different = {}
-		self.count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
-		self.count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
 	
 	def clean_load(self):
-		self.tam_important = None
 		self.documents = []
 		self.training_base = []
 		self.test_base = []
-		self.important_list = []
-		self.neutral_list = []
-		self.not_important_list = []
+		#self.important_list = []
+		#self.neutral_list = []
+		#self.not_important_list = []
 		self.previously_searched = {}
 		self.previously_different = {}
-		self.count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
-		self.count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
+		#self.count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
+		#self.count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
 		self.targets_total = {"important":0.,"neutral":0.,"not-important":0.}	
-	
-	#metodo que divide os tweets obtidos em uma lista de tweets importantes, neutros, nao-importantes
-	#tambem conta a quantidade de tweets importantes, neutros e nao-importantes
-	#cria um tweet da classe tweet com seus respectivos atributos e
-	#os aloca de acordo com a variavel train_percent, entre base de teste e de treinamento
-	#file_path contem o caminho do arquivo .xml com a base de dados do tweet
-	#train_percent e a porcentagem da base de treinamento
-	#ex: train_percent=70, 70% dos tweets serao alocados na base de treinamento e 30% dos tweets na base de teste
-	#nao ha nenhuma garantia de que uma base havera no minimo um de cada tipo de tweet
-	def load_tweets_test(self, file_path):
+
+	"""
+	def load_tweets_test(self, fp):
 		#self.clean_all()
 		self.test_base = []
-		self.file_test_path = parse(file_path)
+		file_test_path = parse(fp)
 		self.tables_test = self.file_test_path.getElementsByTagName("table")
 		for item in self.tables_test:
 			colum = item.getElementsByTagName("column")
@@ -119,19 +108,30 @@ class tweet_list:
 				colum.item(31).childNodes[0].nodeValue,
 				colum.item(32).childNodes[0].nodeValue,
 				colum.item(33).childNodes[0].nodeValue)
+			self.documents.append(temp)
 			self.test_base.append(temp)
+	"""
 	
-	def load_tweets(self, file_path):
+	def load_tweets_test(self,fp):
+		self.test_base = []
+		self.load(fp)
+	
+	def load_tweets(self,fp):
 		self.clean_load()
-		self.file_path = parse(file_path)
-		self.tables = self.file_path.getElementsByTagName("table")
+		self.load(fp)
+		self.training_base = list(self.documents)
+		
+	def load(self, fp):
+		temp_list = []
+		
+		file_path = parse(fp)
+		self.tables = file_path.getElementsByTagName("table")
 		for item in self.tables:
 			colum = item.getElementsByTagName("column")
 			if colum.item(33).childNodes[0].nodeValue == "important":
 				self.targets_total["important"] += 1
 			elif colum.item(33).childNodes[0].nodeValue == "neutral":
 				self.targets_total["neutral"] += 1
-				#self.targets_total["not-important"] += 1
 			else:
 				self.targets_total["not-important"] += 1
 		
@@ -171,48 +171,58 @@ class tweet_list:
 				colum.item(31).childNodes[0].nodeValue,
 				colum.item(32).childNodes[0].nodeValue,
 				colum.item(33).childNodes[0].nodeValue)
+			temp_list.append(temp)
 			self.documents.append(temp)
-		self.training_base = list(self.documents)
-		if temp.get_manual_classification() == "not-important":
-			self.not_important_list.append(temp)
-		elif temp.get_manual_classification() == "important":
-			self.important_list.append(temp)
-		elif temp.get_manual_classification() == "neutral":
-			self.neutral_list.append(temp)
+		return temp_list
+		
+		#	self.documents.append(temp)
+		#self.training_base = list(self.documents)
+		
+		#Teste otimização
+		#if temp.get_manual_classification() == "not-important":
+		#	self.not_important_list.append(temp)
+		#elif temp.get_manual_classification() == "important":
+		#	self.important_list.append(temp)
+		#elif temp.get_manual_classification() == "neutral":
+		#	self.neutral_list.append(temp)
 	
 	def classification_division(self,train_percent):
 		self.clean_classification()
+		count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
+		count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
 		temp_train = []
 		temp_test = []
 		for tweet in self.documents:
 			if random.randint(0,100) <= (100 - train_percent):
 				target = tweet.get("manual_classification")
-				if self.count_target_test[target] / self.targets_total[target] <= ((100. - train_percent) / 100.):
+				if count_target_test[target] / self.targets_total[target] <= ((100. - train_percent) / 100.):
 					temp_test.append(tweet)
-					self.count_target_test[target] += 1
+					count_target_test[target] += 1
 				else:
 					temp_train.append(tweet)
-					if tweet.get("manual_classification") == "important":
-						self.important_list.append(tweet)
-					elif tweet.get("manual_classification") == "neutral":
-						self.neutral_list.append(tweet)
-					else:
-						self.not_important_list.append(tweet)
-					self.count_target_learn[target] += 1
+					#Teste otimização
+					#if tweet.get("manual_classification") == "important":
+					#	self.important_list.append(tweet)
+					#elif tweet.get("manual_classification") == "neutral":
+					#	self.neutral_list.append(tweet)
+					#else:
+					#	self.not_important_list.append(tweet)
+					count_target_learn[target] += 1
 			else:
 				target = tweet.get("manual_classification")
-				if self.count_target_learn[target] / self.targets_total[target] <= (train_percent / 100.):
+				if count_target_learn[target] / self.targets_total[target] <= (train_percent / 100.):
 					temp_train.append(tweet)
-					if tweet.get("manual_classification") == "important":
-						self.important_list.append(tweet)
-					elif tweet.get("manual_classification") == "neutral":
-						self.neutral_list.append(tweet)
-					else:
-						self.not_important_list.append(tweet)
-					self.count_target_learn[target] += 1
+					#Teste otimização
+					#if tweet.get("manual_classification") == "important":
+					#	self.important_list.append(tweet)
+					#elif tweet.get("manual_classification") == "neutral":
+					#	self.neutral_list.append(tweet)
+					#else:
+					#	self.not_important_list.append(tweet)
+					count_target_learn[target] += 1
 				else:
 					temp_test.append(tweet)
-					self.count_target_test[target] += 1
+					count_target_test[target] += 1
 		self.training_base = list(temp_train)
 		self.test_base = list(temp_test)
 
