@@ -17,7 +17,6 @@ class tweet_list:
 	#test = lista dos tweets da base de teste
 	documents = []
 	training_base = []
-	test = []
 	test_base = []
 	
 	#lista de tweets importantes, neutros e nao-importantes
@@ -61,10 +60,6 @@ class tweet_list:
 		self.count_target_test = {"important":0.,"neutral":0.,"not-important":0.}
 		self.count_target_learn = {"important":0.,"neutral":0.,"not-important":0.}
 		self.targets_total = {"important":0.,"neutral":0.,"not-important":0.}	
-		
-	#metodo para deletar a classe(possivelmente para liberar memoria de classe que nao serao mais usadas)
-	def delete(self):
-		del self
 	
 	#metodo que divide os tweets obtidos em uma lista de tweets importantes, neutros, nao-importantes
 	#tambem conta a quantidade de tweets importantes, neutros e nao-importantes
@@ -85,7 +80,6 @@ class tweet_list:
 				self.targets_total["important"] += 1
 			elif colum.item(33).childNodes[0].nodeValue == "neutral":
 				self.targets_total["neutral"] += 1
-				#self.targets_total["not-important"] += 1
 			else:
 				self.targets_total["not-important"] += 1
 		
@@ -227,63 +221,13 @@ class tweet_list:
 	#caso um target tambem seja passado como parametro, retorna a quantidade de valores diferentes para aquele feature de um targed especifico(importante, nao-importante, neutro)
 	#Retorna o valor salvo no array de valores ja pesquisado caso um determinado valor ja tenha sido pesquisado previamente
 	def different_values(self,feature,target = None):
-		set_temp = set([])
-		if (target,feature) not in self.previously_different:
-			if(target == "not-important"):
-				temp_list = self.not_important_list
-			elif(target == "important"):
-				temp_list = self.important_list
-			elif(target == "neutral"):
-				temp_list = self.neutral_list
-			else:
-				temp_list = self.documents
-			for tweet in temp_list:
-				if isinstance(tweet.get(feature),list):
-					for value in tweet.get(feature):
-						set_temp.add(value)
-				else:
-					set_temp.add(tweet.get(feature))
-			self.previously_different[(target,feature)] = float(len(set_temp))
-			return len(set_temp)
-		else:
-			return self.previously_different[(target,feature)]
+		return self.previously_different[feature]
 
 	def search(self, feature=None, value = None):
 		if value == None:
-			i = 0.
-			if(feature) not in self.previously_searched:
-				temp_list = self.training_base
-				for tweet_data in temp_list:
-					if isinstance(tweet_data.get(feature), list):
-						i += len(tweet_data.get(feature))
-					else:
-						if tweet_data.get(feature) != "NULL":
-							i += 1.
-				self.previously_searched[feature] = float(i)
-				return float(i)
-			else:
-				return float(self.previously_searched[feature])
+			return float(self.previously_searched[feature])
 		else:
-			i = 0.
-			otimization = 0.
-			if (feature, value) not in self.previously_searched:
-				temp_list = self.training_base
-				for tweet_data in temp_list:
-					if isinstance(tweet_data.get(feature), list):
-						for list_data in tweet_data.get(feature):
-							otimization += 1.
-							if list_data == value:
-								i += 1.
-					else:
-						otimization += 1.
-						if(tweet_data.equals(feature,value)):
-							i += 1.
-				self.previously_searched[(feature, value)] = float(i)
-				self.previously_searched[feature] = float(otimization)
-				return float(i)
-			else:
-				return float(self.previously_searched[(feature, value)])
-			#return 3 * total #3x é para manter os resultados, se removido necessario gerar novos resultados
+			return float(self.previously_searched[(feature, value)])
 	
 	#retorna a quantidade de tweets de um determinado target(importante, neutro, nao-importante			
 	def get_target_tam(self,target):
@@ -301,6 +245,12 @@ class tweet_list:
 		
 	def get_previously_searched(self):
 		return dict(self.previously_searched)
+		
+	def set_different_searched(self,p):
+		self.previously_different = p
+		
+	def get_different_searched(self):
+		return dict(self.previously_different)
 
 	#retorna lista de tweets importantes
 	def get_importants(self):

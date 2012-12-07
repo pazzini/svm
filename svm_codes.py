@@ -118,44 +118,43 @@ valores de todos os tweets da base de treinamento.
 def create_dictionary():
 	global dictionary
 	dictionary = {}
-	dic_values = {}
+	previously_searched = {}
+	different_searched = {}
+	
 	stop_words = methods.load_stop_words()
-	tweet_list = list_tweet.get_training_base()
+	
+	tweet_list = tweets.get_training_base()
+	
 	for i in feature_to_do:
 		dictionary[features[i]] = set([])
-		dic_values[features[i]] = 0
+
 		for tweet in tweet_list:
 			values = tweet.get(features[i])
-			
 			if isinstance(values,list):
 				for value in values:
-					dic_values[features[i]] += 1
-					if (features[i],value) not in dic_values:
-						dic_values[(features[i],value)] = 0
-					
 					if value not in stop_words:
+						if (features[i],value) not in previously_searched:
+							previously_searched[(features[i],value)] = 0
 						dictionary[features[i]].add(value)
-						
-					dic_values[(features[i],value)] += 1
-						
+						previously_searched[(features[i],value)] += 1
 			else:
-				dic_values[features[i]] += 1
-				if (features[i],values) not in dic_values:
-					dic_values[(features[i],values)] = 0
-				dic_values[(features[i],values)] += 1
+				if values not in stop_words:
+					if (features[i],values) not in previously_searched:
+						previously_searched[(features[i],values)] = 0
+					previously_searched[(features[i],values)] += 1
+					dictionary[features[i]].add(values)
 				
-				dictionary[features[i]].add(values)
-	list_tweet.set_previously_searched(dict(dic_values))
+	tweets.set_previously_searched(dict(previously_searched))
 
 """Cria a base de treinamento"""
 def create_training_base():
-	tl = list_tweet.get_training_base()
+	tl = tweets.get_training_base()
 	label,value = create_base_list(tl)
 	return [label,value]
 
 """Cria a base de teste"""
 def create_test_base():
-	tl = list_tweet.get_test_base()
+	tl = tweets.get_test_base()
 	label,value = create_base_list(tl)
 	return [label,value]
 
@@ -177,9 +176,9 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 		if fast_mode:
 			
 			if (fm_training_base == None):
-				list_tweet.set_training_base(list_tweet.get_documents_list())
+				tweets.set_training_base(tweets.get_documents_list())
 				create_dictionary()
-				l_training,v_training = create_base_list(list_tweet.get_documents_list())
+				l_training,v_training = create_base_list(tweets.get_documents_list())
 				fm_training_base = [l_training,v_training]
 				
 			train_predict(fm_training_base,[],parameter + " -v " + str(tam))
@@ -192,19 +191,19 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 		else:
 			temp_training_base = []
 			temp_test_base = []
-			temp_training_base = list_tweet.get_documents_list()
-			set_tam = int(list_tweet.get_documents_list_tam() // tam)
+			temp_training_base = tweets.get_documents_list()
+			set_tam = int(tweets.get_documents_list_tam() // tam)
 			for k in range(set_tam):
 				temp_test_base.append(temp_training_base[(i*set_tam)])
 				del temp_training_base[(i*set_tam)]
-			list_tweet.set_training_base(temp_training_base)
+			tweets.set_training_base(temp_training_base)
 			
 			create_dictionary()
 			#save_previously_searched()
 
 			l_training,v_training = create_base_list(temp_training_base)
 			training_base = [l_training,v_training]
-			list_tweet.set_test_base(temp_test_base)
+			tweets.set_test_base(temp_test_base)
 			l_test,v_test = create_base_list(temp_test_base)
 			
 			if len(l_test) != 0:
@@ -333,7 +332,7 @@ def create_base_list(tweet_list):
 							else:
 								temp_label = -1
 							found = True
-						p = idf(list_tweet.get_training_base(),tweet,word,j)
+						p = idf(tweets.get_training_base(),tweet,word,j)
 						temp_value[i] = p
 				else:
 					if word == values:
@@ -343,7 +342,7 @@ def create_base_list(tweet_list):
 							else:
 								temp_label = -1
 							found = True
-						p = idf(list_tweet.get_training_base(),tweet,word,j)
+						p = idf(tweets.get_training_base(),tweet,word,j)
 						temp_value[i] = p
 				i += 1
 			
@@ -359,9 +358,9 @@ def idf(tweet_list,tweet,word,feat):
 	x = 1
 	values = tweet.get(features[feat])
 	if isinstance(values,list):
-		return values.count(word) * math.log(len(tweet_list) / (float(list_tweet.search(features[feat],word) + x)))
+		return values.count(word) * math.log(len(tweet_list) / (float(tweets.search(features[feat],word) + x)))
 	else:
-		return math.log(len(tweet_list) / (float(list_tweet.search(features[feat],word) + x)))
+		return math.log(len(tweet_list) / (float(tweets.search(features[feat],word) + x)))
 
 """
 Metodo salva todos os dicionarios criados cada um em um 
@@ -376,7 +375,7 @@ def save_dictionary():
 		f.close()
 
 def save_previously_searched():
-	temp = list_tweet.get_previously_searched()
+	temp = tweets.get_previously_searched()
 	f = open("dics/previously" ,"a")
 	for feature in temp:
 		f.write(unicode(feature).encode("utf-8") + " : " + str(temp[feature]) + "\n")
@@ -429,7 +428,7 @@ def find_good_parameter(user):
 				mean[-1][0] = list_results[-1][0]
 				mean[-1][1] = list_results[-1][1]
 		elif fold == 0:
-			list_tweet.classification_division(proportion)
+			tweets.classification_division(proportion)
 			train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1]))
 			mean[-1][0] = list_results[-1][0]
 			mean[-1][1] = list_results[-1][1]
@@ -558,20 +557,20 @@ for p in sys.argv:
 			print "Parameter -a error."
 			sys.exit(0)
 
-list_tweet = tweet_list.tweet_list()
-list_tweet.load_tweets(filename)
+tweets = tweet_list.tweet_list()
+tweets.load_tweets(filename)
 
 
 
 if fold == "max":
-	fold = list_tweet.get_documents_list_tam()
+	fold = tweets.get_documents_list_tam()
 
 if fast_mode and fold == 0:
 	fast_mode = False
 	print "Fast Mode desatived, missing fold value"
 
-if list_tweet.get_important_tam() < 10:
-	print "quantidade de tweets importantes muita baixa:",list_tweet.get_important_tam()
+if tweets.get_important_tam() < 10:
+	print "quantidade de tweets importantes muita baixa:",tweets.get_important_tam()
 else:
 	print "user" + str(user)
 	if find:
@@ -582,14 +581,14 @@ else:
 		for j in range(repetition_no_changing):
 			
 			if file_test != "":
-				list_tweet.load_tweets_test(file_test)
+				tweets.load_tweets_test(file_test)
 				
 			if fold != 0:
 				train_predict_fold(fold,("-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1])))
 			elif fold == 0:
 				if file_test == "":
-					list_tweet.classification_division(proportion)
-				print "Proportion:",str(proportion) + "%,","training:",str(list_tweet.get_training_base_tam()) + ","," test:",str(list_tweet.get_test_base_tam())
+					tweets.classification_division(proportion)
+				print "Proportion:",str(proportion) + "%,","training:",str(tweets.get_training_base_tam()) + ","," test:",str(tweets.get_test_base_tam())
 				create_dictionary()
 				train_predict(create_training_base(),create_test_base(),"-q -w1 " + str(ws[user-1][0]) + " -w-1 " + str(ws[user-1][1]))
 			

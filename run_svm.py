@@ -13,16 +13,17 @@ if "win" in sys.platform:
 	separator = "\\"
 
 #conj = [[0],[2],[7],[8],[12],[13],[14],[17],[18],[19],[22],[25],[27],[29],[30],[31]]
-conj = [[14]]
-#conj = [[0,2,7,8,12,13,14,17,18,22,25,27,29,30,31]]
-conj = []
+#conj = [[14]]
+conj = [[0,2,7,8,12,13,14,17,18,22,25,27,29,30,31]]
+#conj = []
+"""
 for i in range(1,16):
 	temp = []
 	for j in it.combinations([0,2,7,8,12,13,14,17,18,22,25,27,29,30,31],i):
 		conj.append(list(j))
 	#conj.append(temp)
 print len(conj)
-
+"""
 
 #users = [1,2,3,4,5,6,7,8,9]
 users = [2]
@@ -39,7 +40,7 @@ for i in users:
 				s += (str(c[n]) + ",")
 			else:
 				s += (str(c[n]))
-		s = ("python svm_codes.py users\\user" + str(i) + ".xml -f " + s + " -d -v 10 -find -fm").replace("\\",separator)
+		s = ("python svm_codes.py users\\user" + str(i) + ".xml -f " + s + " -d -v max").replace("\\",separator)
 		time_ini = time.time()
 		os.system(s,)
 		count += 1
