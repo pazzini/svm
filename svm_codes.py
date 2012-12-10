@@ -8,6 +8,7 @@ import methods
 import sys
 from svmutil import *
 import time
+import pdb
 
 separator = "/"
 del_command = "rm"
@@ -77,7 +78,7 @@ resultados encontrados
 -fast_mode usa metodo do libsvm par fazer cross-validation
 """
 dictionary = {}
-feature_to_do = [0,2,7,8,12,13,14,17,18,22,25,27,29,30,31]
+feature_to_do = [0,2,7,8,12,13,14,17,18,19,22,25,27,29,30,31]
 #ws = [[99.57,0.43],[99.75,0.25],[98.25,1.75],[99.43,0.57],[99.92,0.08],[99.97,0.03],[99.5,0.5],[99.17,0.83],[97.04,2.96]]
 ws = [[96.0,4.0],[98.0,2.0],[92.0,8.0],[97.0,3.0],[99.375,0.625],[99.5625,0.4375],[97.5,2.5],[97.0,3.0],[96.0,4.0],[92.0,8.0],
 	[99.859375,0.140625],[99.625,0.375],[99.75,0.25],[99.78125,0.21875],[99.25,0.75],[99.59375,0.40625],[99.625,0.375],[99.6875,0.3125],[99.90625,0.09375],[99.59375,0.40625],[99.0,1.0],
@@ -564,7 +565,7 @@ for p in sys.argv:
 tweets = tweet_list.tweet_list()
 tweets.load_tweets(filename)
 
-
+#pdb.set_trace()
 
 if fold == "max":
 	fold = tweets.get_documents_list_tam()
