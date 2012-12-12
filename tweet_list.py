@@ -46,7 +46,7 @@ class tweet_list:
 	def load_tweets(self,fp):
 		self.clean_load()
 		self.load(fp)
-		self.training_base = self.set_test_base(self.documents)
+		self.set_training_base(self.documents)
 		
 	def load(self, fp):
 		temp_list = []
