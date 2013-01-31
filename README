@@ -19,3 +19,38 @@ python svm_codes.py users/user1.xml -f 0,2,7,8,12,13,14,17,18,22,25,27,29,30,31
 python svm_codes.py users/user2.xml -ft users/user4.xml -f 0,2,7,8,12,13,14,17,18,22,25,27,29,30,31 -d -w1 98.2 -w-1 1.8 -r 0.1 -t 1
 
 The run_svm.py is used to run several times the svm_codes.py
+
+"text", #0
+"status_created_at", #1
+"source", #2
+"in_reply_to_twitter_status_id", #3
+"in_reply_to_twitter_user_id", #4
+"in_reply_to_twitter_user_screen_name", #5
+"retweeted_twitter_status_id", #6
+"retweet_count", #7
+"retweeted", #8
+"geo", #9
+"contributors", #10
+"name", #11
+"screen_name", #12
+"location", #13
+"description", #14
+"url",15
+"protected", #16
+"followers_count", #17
+"friends_count", #18
+"favourites_count", #19
+"user_created_at", #20
+"utc_offset", #21
+"time_zone", #22
+"geo_enabled", #23
+"statuses_count", #24
+"lang", #25
+"contributors_enabled", #26
+"listed_count", #27
+"is_translator", #28
+"favorited", #29
+"entity_user_mention", #30
+"entity_hashtag", #31
+"entity_url", #32
+"manual_classification" #33

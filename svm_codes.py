@@ -19,40 +19,10 @@ if "win" in sys.platform:
 
 
 #lista de todos os features presentes em um tweet
-features = ["text", #0
-			"status_created_at", #1
-			"source", #2
-			"in_reply_to_twitter_status_id", #3
-			"in_reply_to_twitter_user_id", #4
-			"in_reply_to_twitter_user_screen_name", #5
-			"retweeted_twitter_status_id", #6
-			"retweet_count", #7
-			"retweeted", #8
-			"geo", #9
-			"contributors", #10
-			"name", #11
-			"screen_name", #12
-			"location", #13
-			"description", #14
-			"url",#15
-			"protected", #16
-			"followers_count", #17
-			"friends_count", #18
-			"favourites_count", #19
-			"user_created_at", #20
-			"utc_offset", #21
-			"time_zone", #22
-			"geo_enabled", #23
-			"statuses_count", #24
-			"lang", #25só esses que eu 
-			"contributors_enabled", #26
-			"listed_count", #27
-			"is_translator", #28
-			"favorited", #29
-			"entity_user_mention", #30
-			"entity_hashtag", #31
-			"entity_url", #32
-			"manual_classification"] #33
+features = ["text", "status_created_at","source","in_reply_to_twitter_status_id","in_reply_to_twitter_user_id","in_reply_to_twitter_user_screen_name","retweeted_twitter_status_id",
+			"retweet_count","retweeted","geo","contributors","name","screen_name","location","description","url","protected","followers_count","friends_count","favourites_count",
+			"user_created_at","utc_offset","time_zone","geo_enabled","statuses_count","lang","contributors_enabled","listed_count","is_translator","favorited","entity_user_mention",
+			"entity_hashtag","entity_url","manual_classification"]
 
 """inicialização de todas as variaveis
 -Dictionary é um dicionario de dicionarios, ele contem
@@ -139,9 +109,6 @@ def create_dictionary():
 						dictionary[features[i]].add(value)
 						previously_searched[(features[i],value)] += 1
 			else:
-				#if values not in stop_words:
-				#nao precisa de stop word, os atributos textuais são retornados
-				#como listas
 				if (features[i],values) not in previously_searched:
 					previously_searched[(features[i],values)] = 0
 				previously_searched[(features[i],values)] += 1
