@@ -126,8 +126,8 @@ class tweet_list:
 				else:
 					temp_test.append(tweet)
 					count_target_test[target] += 1
-		self.training_base = self.set_training_base(temp_train)
-		self.test_base = self.set_test_base(temp_test)
+		self.set_training_base(temp_train)
+		self.set_test_base(temp_test)
 
 	#Busca que retorna a quantidade de diferentes valores de um feature
 	#Caso somente o feature seja passado como parametro, retorna a quantidade de valores diferentes para aquele feature
