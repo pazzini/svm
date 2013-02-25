@@ -101,8 +101,8 @@ def train_predict_fold(tam = 10,parameter = "-q "):
 			
 			if (fm_training_base == None):
 				tweets.set_training_base(tweets.get_documents_list())
-				create_dictionary(feature_to_do)
-				l_training,v_training = create_base_list(tweets.get_documents_list())
+				svm.create_dictionary(feature_to_do)
+				l_training,v_training = svm.create_base_list(tweets.get_documents_list(),feature_to_do)
 				fm_training_base = [l_training,v_training]
 				
 			train_predict(fm_training_base,[],parameter + " -v " + str(tam))
@@ -265,15 +265,15 @@ def find_good_parameter(user):
 		mean.append([0.,0.])
 		if fold != 0:
 			train_predict_fold(temp_fold,("-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1])))
-			if not fast_mode:
+			if fast_mode:
+				mean[-1][0] = list_results[-1][0]
+				mean[-1][1] = list_results[-1][1]
+			else:
 				for j in range(int(fold)):
 					mean[-1][0] += list_results[-1*(1+j)][0]
 					mean[-1][1] += list_results[-1*(1+j)][1]
 				mean[-1][0] /= (temp_fold - zeros[1])
 				mean[-1][1] /= (temp_fold - zeros[-1])
-			else:
-				mean[-1][0] = list_results[-1][0]
-				mean[-1][1] = list_results[-1][1]
 		elif fold == 0:
 			svm.classification_division(proportion)
 			train_predict(create_training_base(feature_to_do),create_test_base(feature_to_do),"-q -w1 " + str(ws[user][0]) + " -w-1 " + str(ws[user][1]))
@@ -283,7 +283,7 @@ def find_good_parameter(user):
 		if first_result[user] == [0.,0.]:
 			first_result[user] = list_results[0]
 
-		if abs(mean[-1][0] - mean[-1][1]) < precision or change <= 1e-10:
+		if abs(mean[-1][0] - mean[-1][1]) < precision or abs(change) <= 1e-10:
 			break
 			
 		if change > 0 and (mean[-1][1] > mean[-1][0]):
